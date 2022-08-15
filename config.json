@@ -1,0 +1,58 @@
+{
+  "bridge": {
+    "name": "Homebridge 3030",
+    "username": "0E:69:1D:4C:30:30",
+    "port": 51643,
+    "pin": "541-04-492",
+    "advertiser": "avahi"
+  },
+  "accessories": [],
+  "platforms": [
+    {
+      "name": "Config",
+      "port": 8582,
+      "platform": "config"
+    },
+    {
+      "switchGroups": [
+        {
+          "name": "My Group",
+          "displayAs": "switches",
+          "includeSensors": [
+            "anyChanges",
+            "anyChangesToOn",
+            "anyChangesToOff",
+            "anyOn",
+            "anyOff",
+            "allOn",
+            "allOff",
+            "majorityOn",
+            "majorityOff"
+          ],
+          "switches": [
+            {
+              "name": "Switch 1 Stateful",
+              "switchType": "stateful",
+              "systemStartBehavior": "none"
+            },
+            {
+              "name": "Switch 2 Timeout",
+              "switchType": "stateful",
+              "timeoutSeconds": 5,
+              "systemStartBehavior": "none"
+            },
+            {
+              "name": "Switch 3 Stateless",
+              "switchType": "stateless",
+              "systemStartBehavior": "on"
+            }
+          ]
+        }
+      ],
+      "logging": "basic",
+      "systemStartSensor": false,
+      "includeSpecialSensors": ["systemStartup"],
+      "platform": "CustomControls"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "CustomControlsPlugin",
+  "pluginAlias": "CustomControls",
   "pluginType": "platform",
   "singular": true,
   "headerDisplay": "Custom (Dummy) Controls and Sensors for Homebridge to help automate your home with Homekit.",
