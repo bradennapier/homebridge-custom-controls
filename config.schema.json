@@ -1,16 +1,321 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "CustomControlsPlugin",
   "pluginType": "platform",
   "singular": true,
+  "headerDisplay": "Custom (Dummy) Controls and Sensors for Homebridge to help automate your home with Homekit.",
+  "footerDisplay": "FOOTER DISPLAY!",
   "schema": {
     "type": "object",
-    "properties": {
+    "definitions": {
       "name": {
         "title": "Name",
+        "type": "string"
+      },
+      "groupName": {
+        "title": "Group Name",
         "type": "string",
-        "required": true,
-        "default": "Example Dynamic Platform"
+        "placeholder": "Unique Group Name",
+        "description": "The name of the group, that is initially used as the display name."
+      },
+      "switchName": {
+        "title": "Switch Name",
+        "type": "string",
+        "placeholder": "Unique Switch Name",
+        "description": "The name of the switch, that is initially used as the display name."
+      },
+      "displayAs": {
+        "title": "Display As",
+        "type": "string",
+        "enum": ["switches", "power", "locks"],
+        "default": "switches",
+        "titleMap": [
+          { "value": "switches", "name": "Switch Group" },
+          { "value": "power", "name": "Power Strip" },
+          { "value": "locks", "name": "Locks" }
+        ],
+        "description": "If enabled, outlets instead of switches are exposed to HomeKit. This provides a more compact UI in the Apple Home app."
+      },
+
+      "includeSensors": {
+        "title": "Include Sensors",
+        "notitle": true,
+        "description": "Each sensor chosen will be added as a contact sensor which will be closed when its conditions are met.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "allOn",
+            "allOff",
+            "anyChangesToOn",
+            "anyChangesToOff",
+            "anyChanges",
+            "majorityOff",
+            "majorityOn",
+            "anyOn",
+            "anyOff"
+          ]
+        },
+        "titleMap": [
+          {
+            "value": "anyChanges",
+            "name": "<b>Any Changes</b> - A contact sensor which will momentarily close if any in the group are turned on or off"
+          },
+          {
+            "value": "anyChangesToOn",
+            "name": "<b>Any Changes To On</b> - A contact sensor which will momentarily close if any in the group are turned on"
+          },
+          {
+            "value": "anyChangesToOff",
+            "name": "<b>Any Changes To Off</b> - A contact sensor which will momentarily close if any in the group are turned off"
+          },
+          {
+            "value": "anyOn",
+            "name": "<b>Any On</b> - A contact sensor which is closed if any in the group are on"
+          },
+          {
+            "value": "anyOff",
+            "name": "<b>Any Off</b> - A contact sensor which is closed if any in the group are off"
+          },
+          {
+            "value": "allOn",
+            "name": "<b>All On</b> - A contact sensor which will be closed when all switches in the group are on."
+          },
+          {
+            "value": "allOff",
+            "name": "<b>All Off</b> - A contact sensor which will be closed when all switches in the group are off."
+          },
+          {
+            "value": "majorityOn",
+            "name": "<b>Majority On</b> - A contact sensor which will be closed when at least half of the switches in the group are on."
+          },
+          {
+            "value": "majorityOff",
+            "name": "<b>Majority Off</b> - A contact sensor which will be closed when at least half of the switches in the group are off."
+          }
+        ]
+      },
+      "switchType": {
+        "type": "string",
+        "enum": [
+          "stateful",
+          "stateless",
+          "interval-timeout",
+          "stateful-timeout"
+        ],
+        "default": "stateful",
+        "titleMap": [
+          {
+            "value": "stateful",
+            "name": "<b>Stateful</b> - The switch can be turned on or off and you can query its value or react to its changes with an automation. <br /><b>Tip:</b> <code>This can dynamically change into a Stateless or Delay Timeout switch using apps such as Homekit Controller or Eve.</code> <b>(Default)</b>"
+          },
+          {
+            "value": "stateful-timeout",
+            "name": "<b>Stateful Delay Timeout</b> - The switch will be paired with a contact sensor of the same name which closes when the switch is turned on and will remain closed until it has been off for the timeout period.  Turning it on before the timeout expires will reset the timeout."
+          },
+          {
+            "value": "interval-timeout",
+            "name": "<b>Interval Timeout</b> - This switch will be paired with a contact sensor of the same name.  When the switch is turned on, the attached sensor will close then immediately open each time the timeout period elapses.  <b>This requires a timeout of at least 1 second or it will default to 60 seconds.</b>"
+          },
+          {
+            "value": "stateless",
+            "name": "<b>Stateless</b> - The switch will automatically turn off immediately after it has been turned on.  Good for reacting to other events.  This is the same as a stateful switch with a timeout of 0 seconds. This will ignore any value set in the timeout seconds field."
+          }
+        ]
+      },
+      "timeoutSeconds": {
+        "title": "Timeout Seconds",
+        "type": "number",
+        "description": "Set the default timeout seconds for the item.  This can be changed dynamically using apps such as Homekit Controller if needed.  This is ignored for stateless switches which always have a timeout of 0 (immediately)."
+      },
+      "reverseDefaultState": {
+        "title": "Reverse Default State",
+        "type": "boolean",
+        "description": "When enabled, the switch will default to <b>ON</b>.  If the switch is stateless or has a timeout, it will turn on instead of off when the timeout expires."
+      },
+      "systemStartBehavior": {
+        "title": "System Startup Behavior",
+        "type": "string",
+        "enum": ["on", "off", "none", "toggle-to-on", "toggle-to-off"],
+        "default": "none",
+        "titleMap": [
+          {
+            "value": "none",
+            "name": "<b>Do Nothing</b> - Do not do anything on system startup with this item. <b>(Default)</b>"
+          },
+          {
+            "value": "on",
+            "name": "<b>Turn On</b> - The switch will be turned on if it is off when the system starts. Automations will not be triggered if the switch was already on in this case."
+          },
+          {
+            "value": "off",
+            "name": "<b>Turn Off</b> - The switch will be turned off if it is on when the system starts. Automations will not be triggered if the switch was already off in this case."
+          },
+          {
+            "value": "toggle-to-on",
+            "name": "<b>Toggle To On</b> - If the switch is off during system startup, turn it on.  If it is on, turn it off then back on to force automations to run."
+          },
+          {
+            "value": "toggle-to-off",
+            "name": "<b>Toggle To Off</b> - If the switch is on during system startup, turn it off.  If it is off, turn it on then back off to force automations to run."
+          }
+        ],
+        "description": "Set the behavior of the item when the system is starting up. <br /><b>Tip:</b> It may be useful to add the top-level system startup sensor to query during your automation."
+      }
+    },
+    "properties": {
+      "switchGroups": {
+        "type": "array",
+        "title": "Switch Group",
+        "description": "Groups of switches which can have mixed properties such as stateful, stateless, delayable, etc.  Each switch is independent of its siblings.",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "$ref": "#/definitions/groupName" },
+            "displayAs": { "$ref": "#/definitions/displayAs" },
+            "includeSensors": { "$ref": "#/definitions/includeSensors" },
+            "switches": {
+              "title": "Group Switches",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "switchType"],
+                "properties": {
+                  "name": { "$ref": "#/definitions/switchName" },
+                  "switchType": {
+                    "$ref": "#/definitions/switchType"
+                  },
+                  "timeoutSeconds": {
+                    "$ref": "#/definitions/timeoutSeconds"
+                  },
+                  "reverseDefaultState": {
+                    "$ref": "#/definitions/reverseDefaultState"
+                  },
+                  "systemStartBehavior": {
+                    "$ref": "#/definitions/systemStartBehavior"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "logging": {
+        "type": "string",
+        "title": "Logging Level",
+        "default": "basic",
+        "enum": ["basic", "verbose", "none"],
+        "titleMap": {
+          "basic": "Basic Logging (Default)",
+          "verbose": "Verbose Logging",
+          "none": "Disable Logging"
+        }
+      },
+      "systemStartSensor": {
+        "title": "Include System Startup Sensor?",
+        "type": "boolean",
+        "description": "If enabled, adds a sensor which will be closed when the system starts and will open after 30 seconds.  This can be useful to query during automations and handle the case where things happen during system startup.  It can also be used to trigger automation once the system is ready (when it is opened).",
+        "default": false
+      },
+      "includeSpecialSensors": {
+        "title": "Include Special Sensors",
+        "notitle": true,
+        "description": "If any are selected, creates a special group containing each selected will be created.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["systemStartup"]
+        },
+        "titleMap": [
+          {
+            "value": "systemStartup",
+            "name": "<b>System Startup</b> - Adds a sensor which will be closed when the system starts and will open after 30 seconds.  This can be useful to query during automations and handle the case where things happen during system startup.  It can also be used to trigger automation once the system is ready (when it is opened)"
+          }
+        ]
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "type": "fieldset",
+      "title": "Global Settings",
+      "items": [
+        {
+          "type": "section",
+          "title": "Included System Sensors",
+          "expandable": true,
+          "items": ["includeSpecialSensors"]
+        },
+        "logging"
+      ]
+    },
+    {
+      "key": "switchGroups",
+      "expandable": true,
+      "title": "Switch Groups",
+      "add": "Create Switch Group",
+      "description": "Groups of switches which can have mixed properties such as stateful, stateless, delayable, etc.  Each switch is independent of its siblings.",
+      "type": "array",
+      "items": [
+        {
+          "type": "fieldset",
+          "items": [
+            "switchGroups[].name",
+            "switchGroups[].displayAs",
+            {
+              "type": "section",
+              "title": "Included Group Smart Sensors",
+              "expandable": true,
+              "items": ["switchGroups[].includeSensors"]
+            },
+            {
+              "type": "section",
+              "title": "Switches",
+              "expandable": true,
+              "items": [
+                {
+                  "type": "array",
+                  "items": [
+                    "switchGroups[].switches[].name",
+                    {
+                      "key": "switchGroups[].switches[].switchType",
+                      "type": "section",
+                      "title": "Switch Type",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        {
+                          "key": "switchGroups[].switches[].switchType",
+                          "type": "radios",
+                          "notitle": true,
+                          "description": ""
+                        }
+                      ]
+                    },
+                    {
+                      "key": "switchGroups[].switches[].systemStartBehavior",
+                      "type": "section",
+                      "title": "System Startup Behavior",
+                      "expandable": true,
+                      "expanded": false,
+                      "items": [
+                        {
+                          "key": "switchGroups[].switches[].systemStartBehavior",
+                          "type": "radios",
+                          "description": "",
+                          "notitle": true
+                        }
+                      ]
+                    },
+                    "switchGroups[].switches[].timeoutSeconds",
+                    "switchGroups[].switches[].reverseDefaultState"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
