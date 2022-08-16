@@ -157,7 +157,7 @@ export class Accessory {
     const services = [...this.controller.services];
 
     const serviceMap = services.reduce((map, service) => {
-      map.set(`${service.name}-${service.subtype}`, service);
+      map.set(service.UUID, service);
       return map;
     }, new Map<string, AccessoryService>());
 
@@ -169,13 +169,19 @@ export class Accessory {
 
       this.log.info(`Checking ${uuid} for removal against: `, this.services);
 
-      const cachedService = this.services.get(uuid);
+      this.services.forEach((cachedService) => {
+        if (cachedService.controller.UUID === uuid) {
+          this.log.info(`Removing ${uuid}`);
+          this.controller.removeService(activeService);
+        }
+      });
+      // const cachedService = this.services.get(uuid);
 
-      if (!cachedService) {
-        this.log.info('Removing unused service', activeService.displayName);
+      // if (!cachedService) {
+      //   this.log.info('Removing unused service', activeService.displayName);
 
-        this.controller.removeService(activeService);
-      }
+      //   this.controller.removeService(activeService);
+      // }
     }
   }
 }
