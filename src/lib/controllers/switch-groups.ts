@@ -72,7 +72,7 @@ export class SwitchGroupController {
         this.platform.Characteristic.On,
       );
 
-      this.onHandlers.set(item.name, {
+      this.onHandlers.set(service.controller.UUID, {
         item: item,
         handler: onHandler,
       });
@@ -103,19 +103,19 @@ export class SwitchGroupController {
         return this.accessory.useService(
           this.platform.Service.LockMechanism,
           item.name,
-          `${item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
+          `${SWITCH_GROUP_SUBTYPE}-lock`,
         );
       case 'power':
         return this.accessory.useService(
           this.platform.Service.Outlet,
           item.name,
-          `${item.name}-${SWITCH_GROUP_SUBTYPE}-outlet`,
+          `${SWITCH_GROUP_SUBTYPE}-outlet`,
         );
       case 'switches':
         return this.accessory.useService(
           this.platform.Service.Switch,
           item.name,
-          `${item.name}-switch`,
+          `${SWITCH_GROUP_SUBTYPE}-switch`,
         );
       default:
         return null;
