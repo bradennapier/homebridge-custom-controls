@@ -1,7 +1,8 @@
-import type { Platform } from '../platform';
-import type { Characteristic, Service, PlatformAccessory } from 'homebridge';
+import type { Platform } from '../helpers/Platform';
+import type { Characteristic } from '../helpers/Characteristic';
+import { Accessory } from '../helpers/Accessory';
+
 import type { Config, SwitchConfig, SwitchGroup } from '../types';
-import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
 
 const SWITCH_GROUP_SUBTYPE = 'switchGroup';
 
@@ -14,7 +15,7 @@ type SwitchAccessoryContext = {
  * Represents a controller for a single group. A group consists of multiple switches and acts as a radio button group.
  */
 export class SwitchGroupController {
-  private accessory: PlatformAccessory;
+  private accessory: Accessory;
 
   /**
    * Contains the characteristics of all switches and their configurations.
@@ -23,7 +24,7 @@ export class SwitchGroupController {
     string,
     {
       item: SwitchConfig;
-      handler: Characteristic;
+      handler: Characteristic<boolean>;
       timeoutId?: ReturnType<typeof setTimeout>;
     }
   >();
@@ -38,29 +39,18 @@ export class SwitchGroupController {
 
     const uuid = platform.api.hap.uuid.generate(`switchGroup-${group.name}`);
 
-    const cachedAccessory = platform.accessories.get(uuid);
-
-    if (!cachedAccessory) {
-      // create a new accessory
-      this.accessory =
-        new platform.api.platformAccessory<SwitchAccessoryContext>(
-          group.name,
-          uuid,
-        );
-      this.accessory.context.uuid = uuid;
-      this.accessory.context.subType = SWITCH_GROUP_SUBTYPE;
-      // register the accessory
-      platform.registerAccessory(this.accessory);
-    } else {
-      this.accessory = cachedAccessory;
-    }
+    this.accessory = new Accessory(platform, {
+      uuid,
+      name: group.name,
+      subType: SWITCH_GROUP_SUBTYPE,
+    });
 
     this.accessory.setInformation({
-      manufacturer: 'Switch',
-      model: 'SwitchGroup',
+      manufacturer: 'YourFriend',
+      model: SWITCH_GROUP_SUBTYPE,
       serialNumber: group.name,
-      firmwareRevision: null,
-      hardwareRevision: null,
+      firmwareRevision: undefined,
+      hardwareRevision: undefined,
     });
 
     // Creates all switches of the controller
@@ -88,7 +78,7 @@ export class SwitchGroupController {
       });
 
       // Subscribes for changes of the switch state
-      onHandler.valueChanged = (newValue) => {
+      onHandler.onChange = (newValue) => {
         if (onHandler.value !== newValue) {
           platform.log.info(
             `[${group.name}] switch ${item.name} changed to ${newValue}`,
@@ -104,25 +94,25 @@ export class SwitchGroupController {
       };
     }
 
-    this.accessory.removeUnusedServices();
+    this.accessory.cleanupServices();
   }
 
-  private getSwitchService(item: SwitchConfig): null | Service {
+  private getSwitchService(item: SwitchConfig) {
     switch (this.group.displayAs) {
       case 'locks':
-        return this.useService(
+        return this.accessory.useService(
           this.platform.Service.LockMechanism,
           item.name,
           `${item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
         );
       case 'power':
-        return this.useService(
+        return this.accessory.useService(
           this.platform.Service.Outlet,
           item.name,
           `${item.name}-${SWITCH_GROUP_SUBTYPE}-outlet`,
         );
       case 'switches':
-        return this.useService(
+        return this.accessory.useService(
           this.platform.Service.Switch,
           item.name,
           `${item.name}-switch`,
@@ -130,18 +120,6 @@ export class SwitchGroupController {
       default:
         return null;
     }
-  }
-
-  private useService(
-    serviceKind: typeof Service,
-    name: string,
-    subType: string,
-  ) {
-    const service = this.accessory.getService(name);
-    if (!service || service?.subtype !== subType) {
-      return this.accessory.addService(serviceKind, name, subType);
-    }
-    return service;
   }
 
   /**

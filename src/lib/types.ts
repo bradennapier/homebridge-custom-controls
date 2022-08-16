@@ -57,6 +57,7 @@ export type SwitchGroup = {
 };
 
 export interface Config {
+  name?: string;
   logging: 'basic' | 'verbose' | 'none';
   includeSpecialSensors?: SpecialSensorTypes[];
   switchGroups?: SwitchGroup[];

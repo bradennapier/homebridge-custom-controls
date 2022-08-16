@@ -5,14 +5,13 @@ import type {
   PlatformAccessory,
   PlatformConfig,
 } from 'homebridge';
+import { Config } from '../types';
 
-// import handleSwitchGroups, {
-//   type SwitchGroupController,
-// } from '../controllers/switch-groups';
+import handleSwitchGroups, {
+  type SwitchGroupController,
+} from '../controllers/switch-groups';
 
 import type { AccessoryCreationParams } from './Accessory';
-
-// import type { Config } from '../types';
 
 /**
  * Represents the platform of the plugin.
@@ -22,6 +21,8 @@ export class Platform implements DynamicPlatformPlugin {
   public readonly Characteristic = this.api.hap.Characteristic;
 
   public readonly hap = this.api.hap;
+
+  public readonly config: Config;
 
   // this is used to track restored cached accessories
   public readonly accessories = new Map<
@@ -34,14 +35,16 @@ export class Platform implements DynamicPlatformPlugin {
    */
 
   public controllers = {
-    switchGroups: [] as any[],
+    switchGroups: [] as SwitchGroupController[],
   };
 
   constructor(
     public readonly log: Logger,
-    public readonly config: PlatformConfig,
+    config: PlatformConfig,
     public readonly api: API,
   ) {
+    this.config = config as Config;
+
     this.log.debug('Finished initializing platform:', this.config.name);
 
     this.log.info(JSON.stringify(config, null, 2));
@@ -58,7 +61,7 @@ export class Platform implements DynamicPlatformPlugin {
       log.debug('Executed didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
-      // handleSwitchGroups(this);
+      handleSwitchGroups(this);
     });
   }
 

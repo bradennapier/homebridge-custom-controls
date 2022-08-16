@@ -84,31 +84,31 @@ export class Accessory {
     );
 
     // Updates the information characteristics
-    if (information.manufacturer != null) {
+    if (information.manufacturer) {
       service.useCharacteristic(
         this.platform.api.hap.Characteristic.Manufacturer,
         information.manufacturer,
       );
     }
-    if (information.model != null) {
+    if (information.model) {
       service.useCharacteristic(
         this.platform.api.hap.Characteristic.Model,
         information.model,
       );
     }
-    if (information.serialNumber != null) {
+    if (information.serialNumber) {
       service.useCharacteristic(
         this.platform.api.hap.Characteristic.SerialNumber,
         information.serialNumber,
       );
     }
-    if (information.firmwareRevision != null) {
+    if (information.firmwareRevision) {
       service.useCharacteristic(
         this.platform.api.hap.Characteristic.FirmwareRevision,
         information.firmwareRevision,
       );
     }
-    if (information.hardwareRevision != null) {
+    if (information.hardwareRevision) {
       service.useCharacteristic(
         this.platform.api.hap.Characteristic.HardwareRevision,
         information.hardwareRevision,
