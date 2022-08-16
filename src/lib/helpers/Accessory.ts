@@ -130,9 +130,10 @@ export class Accessory {
     const serviceUUID = `${name}-${subType}`;
 
     // Checks if the service has already been defined for usage
-    const cachedService = this.services.get(type.UUID);
+    const cachedService = this.services.get(serviceUUID);
 
     if (cachedService) {
+      this.log.info('Cached Service: ', serviceUUID, cachedService);
       return cachedService;
     }
 
@@ -144,7 +145,7 @@ export class Accessory {
       subType,
     });
 
-    this.services.set(type.UUID, service);
+    this.services.set(serviceUUID, service);
 
     return service;
   }
@@ -156,7 +157,7 @@ export class Accessory {
     const services = [...this.controller.services];
 
     const serviceMap = services.reduce((map, service) => {
-      map.set(service.UUID, service);
+      map.set(`${service.name}-${service.subtype}`, service);
       return map;
     }, new Map<string, AccessoryService>());
 
