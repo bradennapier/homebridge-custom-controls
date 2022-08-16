@@ -155,6 +155,14 @@ export class Accessory {
    */
   public cleanupServices() {
     const services = [...this.controller.services];
+    this.log.info(
+      'Cleaning up services',
+      services.map((service) => ({
+        uuid: service.UUID,
+        name: service.name,
+        subtype: service.subtype,
+      })),
+    );
 
     const serviceMap = services.reduce((map, service) => {
       map.set(service.UUID, service);
