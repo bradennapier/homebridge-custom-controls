@@ -168,13 +168,18 @@ export class Accessory {
         continue;
       }
 
-      const cachedService = this.services.get(serviceID);
+      this.log.info(
+        `Checking ${serviceID} for removal against: `,
+        this.services,
+      );
 
-      if (cachedService) {
-        this.log.info('Removing unused service', activeService.displayName);
+      // const cachedService = this.services.get(serviceID);
 
-        this.controller.removeService(activeService);
-      }
+      // if (!cachedService) {
+      //   this.log.info('Removing unused service', activeService.displayName);
+
+      //   this.controller.removeService(activeService);
+      // }
     }
   }
 }
