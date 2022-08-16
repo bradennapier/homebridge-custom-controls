@@ -72,13 +72,14 @@ export class Platform implements DynamicPlatformPlugin {
   configureAccessory(accessory: PlatformAccessory<AccessoryCreationParams>) {
     this.log.info(
       'Loading accessory from cache:',
+      accessory.UUID,
       `${accessory.context.name}-${accessory.context.subType ?? ''}`,
     );
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    // this.accessories.set(
-    //   `${accessory.context.name}-${accessory.context.subType ?? ''}`,
-    //   accessory,
-    // );
+    this.accessories.set(
+      `${accessory.context.name}-${accessory.context.subType ?? ''}`,
+      accessory,
+    );
   }
 }
