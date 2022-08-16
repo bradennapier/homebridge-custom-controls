@@ -76,9 +76,9 @@ export class Platform implements DynamicPlatformPlugin {
     );
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    this.accessories.set(
-      `${accessory.context.name}-${accessory.context.subType ?? ''}`,
-      accessory,
-    );
+    // this.accessories.set(
+    //   `${accessory.context.name}-${accessory.context.subType ?? ''}`,
+    //   accessory,
+    // );
   }
 }
