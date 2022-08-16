@@ -34,14 +34,13 @@ export class Accessory {
       ...params,
       subType: params.subType ?? 'accessory',
     };
+    const uuid = this.api.hap.uuid.generate(this.id);
 
-    const cachedAccessory = this.platform.accessories.get(this.id);
+    const cachedAccessory = this.platform.accessories.get(uuid);
 
     if (cachedAccessory) {
       this.controller = cachedAccessory;
     } else {
-      const uuid = this.api.hap.uuid.generate(this.id);
-
       this.controller = new this.api.platformAccessory(
         params.name,
         uuid,
