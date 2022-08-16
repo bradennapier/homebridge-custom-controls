@@ -24,7 +24,6 @@ const config = {
   rules: {
     quotes: ['warn', 'single'],
     indent: ['warn', 2, { SwitchCase: 1 }],
-    semi: ['off'],
     'comma-dangle': ['warn', 'always-multiline'],
     'dot-notation': 'off',
     eqeqeq: 'warn',
