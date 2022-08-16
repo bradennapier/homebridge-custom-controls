@@ -1,6 +1,6 @@
 import type { API } from 'homebridge';
 
-import { PLATFORM_NAME } from '../settings';
+import { PLATFORM_NAME } from './settings';
 import { Platform } from './lib/helpers/Platform';
 
 /**
