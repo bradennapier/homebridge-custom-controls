@@ -172,13 +172,13 @@ export class Accessory {
         this.services,
       );
 
-      // const cachedService = this.services.get(serviceID);
+      const cachedService = this.services.get(serviceID);
 
-      // if (!cachedService) {
-      //   this.log.info('Removing unused service', activeService.displayName);
+      if (!cachedService) {
+        this.log.info('Removing unused service', activeService.displayName);
 
-      //   this.controller.removeService(activeService);
-      // }
+        this.controller.removeService(activeService);
+      }
     }
   }
 }
