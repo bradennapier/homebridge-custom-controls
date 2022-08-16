@@ -9,7 +9,7 @@ import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
 import { AccessoryInformation, ServiceWithUUID } from '../types';
 import type { Platform } from './Platform';
 
-import { Service } from './service';
+import { Service } from './Service';
 
 export type AccessoryCreationParams = {
   name: string;
