@@ -11,6 +11,14 @@
     {
       "name": "Config",
       "port": 8582,
+      "auth": "form",
+      "theme": "auto",
+      "tempUnits": "c",
+      "lang": "auto",
+      "log": {
+        "method": "file",
+        "path": "homebridge.log"
+      },
       "platform": "config"
     },
     {

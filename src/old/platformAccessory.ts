@@ -23,32 +23,45 @@ export class ExamplePlatformAccessory {
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-
     // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(
+        this.platform.Characteristic.Manufacturer,
+        'Default-Manufacturer',
+      )
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        'Default-Serial',
+      );
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.service =
+      this.accessory.getService(this.platform.Service.Lightbulb) ||
+      this.accessory.addService(this.platform.Service.Lightbulb);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
+    this.service.setCharacteristic(
+      this.platform.Characteristic.Name,
+      accessory.context.device.exampleDisplayName,
+    );
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.On)
+      .onSet(this.setOn.bind(this)) // SET - bind to the `setOn` method below
+      .onGet(this.getOn.bind(this)); // GET - bind to the `getOn` method below
 
     // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.Brightness)
+      .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
 
     /**
      * Creating multiple services of the same type.
@@ -62,11 +75,21 @@ export class ExamplePlatformAccessory {
      */
 
     // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    const motionSensorOneService =
+      this.accessory.getService('Motion Sensor One Name') ||
+      this.accessory.addService(
+        this.platform.Service.MotionSensor,
+        'Motion Sensor One Name',
+        'YourUniqueIdentifier-1',
+      );
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+    const motionSensorTwoService =
+      this.accessory.getService('Motion Sensor Two Name') ||
+      this.accessory.addService(
+        this.platform.Service.MotionSensor,
+        'Motion Sensor Two Name',
+        'YourUniqueIdentifier-2',
+      );
 
     /**
      * Updating characteristics values asynchronously.
@@ -83,11 +106,23 @@ export class ExamplePlatformAccessory {
       motionDetected = !motionDetected;
 
       // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
+      motionSensorOneService.updateCharacteristic(
+        this.platform.Characteristic.MotionDetected,
+        motionDetected,
+      );
+      motionSensorTwoService.updateCharacteristic(
+        this.platform.Characteristic.MotionDetected,
+        !motionDetected,
+      );
 
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
+      this.platform.log.debug(
+        'Triggering motionSensorOneService:',
+        motionDetected,
+      );
+      this.platform.log.debug(
+        'Triggering motionSensorTwoService:',
+        !motionDetected,
+      );
     }, 10000);
   }
 
@@ -137,5 +172,4 @@ export class ExamplePlatformAccessory {
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
-
 }

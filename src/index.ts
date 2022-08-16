@@ -1,11 +1,7 @@
-import { API } from 'homebridge';
-
-import { PLATFORM_NAME } from './settings';
-import { ExampleHomebridgePlatform } from './platform';
+import { Homebridge } from 'homebridge-framework';
+import { Platform } from './lib/platform';
 
 /**
  * This method registers the platform with Homebridge
  */
-export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, ExampleHomebridgePlatform);
-};
+export = Homebridge.register(new Platform());

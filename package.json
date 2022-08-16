@@ -32,13 +32,19 @@
     "homebridge-radio-switches",
     "homebridge-sensors"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@types/eslint": "^8.4.5",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1"
+  },
   "devDependencies": {
     "@types/node": "^16.11.49",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "eslint": "^8.22.0",
     "homebridge": "^1.5.0",
+    "homebridge-framework": "2.0.0",
     "nodemon": "^2.0.19",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
