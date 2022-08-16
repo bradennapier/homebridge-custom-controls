@@ -37,7 +37,9 @@ export class SwitchGroupController {
   constructor(private platform: Platform, private group: SwitchGroup) {
     platform.log.info(`[group/${group.name}] Initializing Group...`);
 
-    const uuid = platform.api.hap.uuid.generate(`switchGroup-${group.name}`);
+    const uuid = platform.api.hap.uuid.generate(
+      `${SWITCH_GROUP_SUBTYPE}-${group.name}`,
+    );
 
     this.accessory = new Accessory(platform, {
       uuid,

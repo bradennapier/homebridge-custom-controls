@@ -73,6 +73,9 @@ export class Platform implements DynamicPlatformPlugin {
     this.log.info('Loading accessory from cache:', accessory.UUID);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    this.accessories.set(accessory.UUID, accessory);
+    this.accessories.set(
+      `${accessory.context.name}-${accessory.context.subType ?? ''}`,
+      accessory,
+    );
   }
 }
