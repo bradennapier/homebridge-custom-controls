@@ -161,6 +161,8 @@ export class Accessory {
       return map;
     }, new Map<string, AccessoryService>());
 
+    const cachedServices = [...this.services];
+
     for (const [uuid, activeService] of serviceMap) {
       // The accessory information service is always required
       if (uuid === this.platform.Service.AccessoryInformation.UUID) {
@@ -169,12 +171,11 @@ export class Accessory {
 
       this.log.info(`Checking ${uuid} for removal against: `, this.services);
 
-      this.services.forEach((cachedService) => {
-        if (cachedService.controller.UUID === uuid) {
-          this.log.info(`Removing ${uuid}`);
-          this.controller.removeService(activeService);
-        }
-      });
+      if (!cachedServices.some((s) => s.uuid === uuid)) {
+        this.log.info(`Removing ${uuid}`);
+        this.controller.removeService(activeService);
+      }
+
       // const cachedService = this.services.get(uuid);
 
       // if (!cachedService) {
