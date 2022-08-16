@@ -70,7 +70,7 @@ export class Platform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory<AccessoryCreationParams>) {
-    this.log.info('Loading accessory from cache:', accessory);
+    this.log.info('Loading accessory from cache:', accessory.UUID);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.set(accessory.UUID, accessory);
