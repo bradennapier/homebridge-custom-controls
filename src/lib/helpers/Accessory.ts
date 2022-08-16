@@ -121,12 +121,8 @@ export class Accessory {
    * @param name The name that should be displayed in HomeKit.
    * @param subType The sub type of the service. May be omitted if the type is already unique.
    */
-  public useService(
-    type: ServiceWithUUID,
-    name: string,
-    subType = 'service',
-  ): Service {
-    const serviceUUID = `${name}-${subType}`;
+  public useService(type: ServiceWithUUID, name: string, subType): Service {
+    const serviceUUID = `${name}-${subType ?? ''}`;
 
     // Checks if the service has already been defined for usage
     const cachedService = this.services.get(serviceUUID);
