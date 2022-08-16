@@ -57,7 +57,7 @@ export class Accessory {
   }
 
   public isAccessoryRegistered() {
-    return this.platform.accessories.has(this.id);
+    return this.platform.accessories.has(this.controller.UUID);
   }
 
   public register(): void {
@@ -129,7 +129,7 @@ export class Accessory {
     const serviceUUID = `${name}-${subType}`;
 
     // Checks if the service has already been defined for usage
-    const cachedService = this.services.get(serviceUUID);
+    const cachedService = this.services.get(type.UUID);
 
     if (cachedService) {
       return cachedService;
@@ -143,7 +143,7 @@ export class Accessory {
       subType,
     });
 
-    this.services.set(serviceUUID, service);
+    this.services.set(type.UUID, service);
 
     return service;
   }
@@ -155,24 +155,19 @@ export class Accessory {
     const services = [...this.controller.services];
 
     const serviceMap = services.reduce((map, service) => {
-      map.set(`${service.UUID}-${service.subtype ?? 'service'}`, service);
+      map.set(service.UUID, service);
       return map;
     }, new Map<string, AccessoryService>());
 
-    for (const [serviceID, activeService] of serviceMap) {
+    for (const [uuid, activeService] of serviceMap) {
       // The accessory information service is always required
-      if (
-        activeService.UUID === this.platform.Service.AccessoryInformation.UUID
-      ) {
+      if (uuid === this.platform.Service.AccessoryInformation.UUID) {
         continue;
       }
 
-      this.log.info(
-        `Checking ${serviceID} for removal against: `,
-        this.services,
-      );
+      this.log.info(`Checking ${uuid} for removal against: `, this.services);
 
-      const cachedService = this.services.get(serviceID);
+      const cachedService = this.services.get(uuid);
 
       if (!cachedService) {
         this.log.info('Removing unused service', activeService.displayName);
