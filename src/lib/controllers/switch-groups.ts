@@ -103,19 +103,19 @@ export class SwitchGroupController {
         return this.accessory.useService(
           this.platform.Service.LockMechanism,
           item.name,
-          `${SWITCH_GROUP_SUBTYPE}-lock`,
+          `${item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
         );
       case 'power':
         return this.accessory.useService(
           this.platform.Service.Outlet,
           item.name,
-          `${SWITCH_GROUP_SUBTYPE}-outlet`,
+          `${item.name}-${SWITCH_GROUP_SUBTYPE}-outlet`,
         );
       case 'switches':
         return this.accessory.useService(
           this.platform.Service.Switch,
           item.name,
-          `${SWITCH_GROUP_SUBTYPE}-switch`,
+          `${item.name}-${SWITCH_GROUP_SUBTYPE}-switch`,
         );
       default:
         return null;
