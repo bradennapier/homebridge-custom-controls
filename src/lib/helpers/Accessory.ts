@@ -78,7 +78,6 @@ export class Accessory {
    * @param information The accessory information.
    */
   public setInformation(information: AccessoryInformation) {
-    Makes sure the accessory information service is used
     const service = this.useService(
       this.platform.Service.AccessoryInformation,
       this.params.name,
