@@ -170,7 +170,7 @@ export class Accessory {
 
       const cachedService = this.services.get(serviceID);
 
-      if (!cachedService) {
+      if (cachedService) {
         this.log.info('Removing unused service', activeService.displayName);
 
         this.controller.removeService(activeService);
