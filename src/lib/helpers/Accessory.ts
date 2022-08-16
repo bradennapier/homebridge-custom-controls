@@ -155,6 +155,7 @@ export class Accessory {
    */
   public cleanupServices() {
     const services = [...this.controller.services];
+
     this.log.info(
       'Cleaning up services',
       services.map((service) => ({
@@ -164,28 +165,42 @@ export class Accessory {
       })),
     );
 
-    const serviceMap = services.reduce((map, service) => {
-      map.set(service.UUID, service);
-      return map;
-    }, new Map<string, AccessoryService>());
-
     const cachedServices = [...this.services.values()];
 
-    for (const [uuid, activeService] of serviceMap) {
+    for (const service of services) {
       // The accessory information service is always required
-      if (uuid === this.platform.Service.AccessoryInformation.UUID) {
+      if (service.UUID === this.platform.Service.AccessoryInformation.UUID) {
         continue;
       }
 
-      this.log.info(`Checking ${uuid} for removal against: `, this.services);
+      this.log.info(
+        `Checking ${service.UUID} / ${
+          service.subtype ?? 'null'
+        } for removal against: `,
+        this.services,
+      );
 
-      if (
-        activeService.subtype === 'switchGroup-switch' ||
-        !activeService.subtype ||
-        !cachedServices.some((s) => s.controller.UUID === uuid)
-      ) {
-        this.log.info(`Removing ${uuid}`);
-        this.controller.removeService(activeService);
+      // Removes the unused services
+      if (service.subtype) {
+        if (
+          !cachedServices.some(
+            (d) =>
+              service.UUID === d.controller.UUID &&
+              service.subtype === d.controller.subtype,
+          )
+        ) {
+          this.log.info(`Removing ${service.UUID}`);
+          this.controller.removeService(service);
+        }
+      } else {
+        if (
+          !cachedServices.some(
+            (d) => service.UUID === d.controller.UUID && !d.controller.subtype,
+          )
+        ) {
+          this.log.info(`Removing ${service.UUID}`);
+          this.controller.removeService(service);
+        }
       }
 
       // const cachedService = this.services.get(uuid);
