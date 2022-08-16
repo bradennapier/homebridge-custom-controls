@@ -39,8 +39,10 @@ export class Accessory {
     const cachedAccessory = this.platform.accessories.get(uuid);
 
     if (cachedAccessory) {
+      this.log.info('Found Cached Accesory');
       this.controller = cachedAccessory;
     } else {
+      this.log.info('Creating New Accessory');
       this.controller = new this.api.platformAccessory(
         params.name,
         uuid,
