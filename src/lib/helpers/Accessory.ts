@@ -179,7 +179,11 @@ export class Accessory {
 
       this.log.info(`Checking ${uuid} for removal against: `, this.services);
 
-      if (!cachedServices.some((s) => s.controller.UUID === uuid)) {
+      if (
+        activeService.subtype === 'switchGroup-switch' ||
+        !activeService.subtype ||
+        !cachedServices.some((s) => s.controller.UUID === uuid)
+      ) {
         this.log.info(`Removing ${uuid}`);
         this.controller.removeService(activeService);
       }
