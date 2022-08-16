@@ -78,42 +78,42 @@ export class Accessory {
    * @param information The accessory information.
    */
   public setInformation(information: AccessoryInformation) {
-    // Makes sure the accessory information service is used
-    // const service = this.useService(
-    //   this.platform.Service.AccessoryInformation,
-    //   this.params.name,
-    // );
-    // // Updates the information characteristics
-    // if (information.manufacturer) {
-    //   service.useCharacteristic(
-    //     this.platform.api.hap.Characteristic.Manufacturer,
-    //     information.manufacturer,
-    //   );
-    // }
-    // if (information.model) {
-    //   service.useCharacteristic(
-    //     this.platform.api.hap.Characteristic.Model,
-    //     information.model,
-    //   );
-    // }
-    // if (information.serialNumber) {
-    //   service.useCharacteristic(
-    //     this.platform.api.hap.Characteristic.SerialNumber,
-    //     information.serialNumber,
-    //   );
-    // }
-    // if (information.firmwareRevision) {
-    //   service.useCharacteristic(
-    //     this.platform.api.hap.Characteristic.FirmwareRevision,
-    //     information.firmwareRevision,
-    //   );
-    // }
-    // if (information.hardwareRevision) {
-    //   service.useCharacteristic(
-    //     this.platform.api.hap.Characteristic.HardwareRevision,
-    //     information.hardwareRevision,
-    //   );
-    // }
+    Makes sure the accessory information service is used
+    const service = this.useService(
+      this.platform.Service.AccessoryInformation,
+      this.params.name,
+    );
+    // Updates the information characteristics
+    if (information.manufacturer) {
+      service.useCharacteristic(
+        this.platform.api.hap.Characteristic.Manufacturer,
+        information.manufacturer,
+      );
+    }
+    if (information.model) {
+      service.useCharacteristic(
+        this.platform.api.hap.Characteristic.Model,
+        information.model,
+      );
+    }
+    if (information.serialNumber) {
+      service.useCharacteristic(
+        this.platform.api.hap.Characteristic.SerialNumber,
+        information.serialNumber,
+      );
+    }
+    if (information.firmwareRevision) {
+      service.useCharacteristic(
+        this.platform.api.hap.Characteristic.FirmwareRevision,
+        information.firmwareRevision,
+      );
+    }
+    if (information.hardwareRevision) {
+      service.useCharacteristic(
+        this.platform.api.hap.Characteristic.HardwareRevision,
+        information.hardwareRevision,
+      );
+    }
   }
 
   /**
