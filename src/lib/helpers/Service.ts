@@ -34,10 +34,8 @@ export class Service {
     public params: ServiceCreationParams,
   ) {
     const cachedService = params.subType
-      ? accessory.controller.getServiceById(params.type, params.subType) ??
-        accessory.controller.getServiceById(params.name, params.subType)
-      : accessory.controller.getService(params.type) ??
-        accessory.controller.getService(params.name);
+      ? accessory.controller.getServiceById(params.type, params.subType)
+      : accessory.controller.getService(params.type);
 
     if (!cachedService) {
       this.log.info('[Controls] Creating new service', params.name);

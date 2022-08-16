@@ -39,6 +39,7 @@ export class Characteristic<V extends CharacteristicValue> {
 
     // Subscribes for changes of the value
     this.controller.on('set', async (value, callback) => {
+      this.log.info('controller.on set called: ', value, service.params);
       // Checks if a handler has been set
       if (typeof this.onChange !== 'function') {
         return callback();
