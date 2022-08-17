@@ -13,7 +13,6 @@ import { Service } from './Service';
 
 export type AccessoryCreationParams = {
   name: string;
-  uuid: string;
   subType?: string;
   category?: Categories;
 };
@@ -34,6 +33,7 @@ export class Accessory {
       ...params,
       subType: params.subType ?? 'accessory',
     };
+
     const uuid = this.api.hap.uuid.generate(this.id);
 
     const cachedAccessory = this.platform.accessories.get(uuid);
@@ -55,7 +55,7 @@ export class Accessory {
   }
 
   public get id() {
-    return `${this.params.uuid}-${this.params.subType}`;
+    return `${this.params.name}-${this.params.subType ?? ''}`;
   }
 
   public isAccessoryRegistered() {

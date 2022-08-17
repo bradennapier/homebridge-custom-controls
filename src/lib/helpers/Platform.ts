@@ -26,18 +26,27 @@ export class Platform implements DynamicPlatformPlugin {
 
   public readonly config: Config;
 
-  // this is used to track restored cached accessories
+  // this is used to track restored cached accessorie
+
   public readonly accessories = new Map<
     PlatformAccessory['UUID'],
     PlatformAccessory<AccessoryCreationParams>
   >();
+
+  public get uuids() {
+    return new Set(this.accessories.keys());
+  }
+
+  public get activeAccessories() {
+    return Array.from(this.accessories.values());
+  }
 
   /**
    * Contains a list of all group controllers.
    */
 
   public controllers = {
-    switchGroups: [] as SwitchGroupController[],
+    switchGroups: new Set<SwitchGroupController>(),
   };
 
   constructor(
@@ -68,6 +77,15 @@ export class Platform implements DynamicPlatformPlugin {
     });
   }
 
+  removeAllAccessories() {
+    this.api.unregisterPlatformAccessories(
+      PLUGIN_NAME,
+      PLATFORM_NAME,
+      this.activeAccessories,
+    );
+    this.accessories.clear();
+  }
+
   /**
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
@@ -84,10 +102,11 @@ export class Platform implements DynamicPlatformPlugin {
       this.log.info('%s identified!', accessory.displayName);
     });
 
+    if (Array.from(this.accessories.keys()).includes(accessory.UUID)) {
+      this.log.info('Accessory already registered:', accessory.UUID);
+    }
+
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    this.accessories.set(
-      `${accessory.context.name}-${accessory.context.subType ?? ''}`,
-      accessory,
-    );
+    this.accessories.set(accessory.UUID, accessory);
   }
 }

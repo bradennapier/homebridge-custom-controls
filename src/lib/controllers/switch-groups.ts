@@ -37,12 +37,7 @@ export class SwitchGroupController {
   constructor(private platform: Platform, private group: SwitchGroup) {
     platform.log.info(`[group/${group.name}] Initializing Group...`);
 
-    const uuid = platform.api.hap.uuid.generate(
-      `${SWITCH_GROUP_SUBTYPE}-${group.name}`,
-    );
-
     this.accessory = new Accessory(platform, {
-      uuid,
       name: group.name,
       subType: SWITCH_GROUP_SUBTYPE,
     });
@@ -166,7 +161,7 @@ export default function handleSwitchGroups(platform: Platform) {
 
       // Creates a new controller for the group
       const controller = new SwitchGroupController(platform, group);
-      platform.controllers.switchGroups.push(controller);
+      platform.controllers.switchGroups.add(controller);
     } else {
       platform.log.warn('Group name missing in the configuration.');
     }
