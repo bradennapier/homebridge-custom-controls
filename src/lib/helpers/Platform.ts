@@ -75,6 +75,7 @@ export class Platform implements DynamicPlatformPlugin {
       'Loading accessory from cache:',
       accessory.UUID,
       `${accessory.context.name}-${accessory.context.subType ?? ''}`,
+      accessory,
     );
 
     accessory.on(this.hap.AccessoryEventTypes.IDENTIFY, () => {
