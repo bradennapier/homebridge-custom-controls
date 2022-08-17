@@ -149,6 +149,12 @@ export class Accessory {
       name,
     );
 
+    this.log.info(`Registered Service: ${name}`, {
+      subType,
+      serviceUUID,
+      type,
+    });
+
     this.services.set(serviceUUID, service);
 
     return service;
