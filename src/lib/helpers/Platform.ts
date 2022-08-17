@@ -13,6 +13,7 @@ import handleSwitchGroups, {
 } from '../controllers/switch-groups';
 
 import type { AccessoryCreationParams } from './Accessory';
+import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
 
 /**
  * Represents the platform of the plugin.
@@ -60,6 +61,9 @@ export class Platform implements DynamicPlatformPlugin {
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+        ...this.accessories.values(),
+      ]);
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
       handleSwitchGroups(this);
