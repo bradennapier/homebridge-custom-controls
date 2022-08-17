@@ -1,4 +1,5 @@
 import http from 'http';
+import debug from 'debug';
 import type {
   API,
   DynamicPlatformPlugin,
@@ -122,6 +123,16 @@ export class Platform implements DynamicPlatformPlugin {
       case '/reset-switch-groups': {
         this.log.warn('Resetting Switch Groups');
         handleSwitchGroups(this);
+        break;
+      }
+      case '/hap-debug-on': {
+        this.log.warn('Starting Debug Logging for HAP-NodeJS');
+        debug.enable('HAP-NodeJS:*');
+        break;
+      }
+      case '/hap-debug-off': {
+        this.log.warn('Stopping Debug Logging for HAP-NodeJS');
+        debug.disable();
         break;
       }
       default:
