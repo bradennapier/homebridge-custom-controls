@@ -5,6 +5,7 @@ import type {
   PlatformAccessory,
   PlatformConfig,
 } from 'homebridge';
+import { APIEvent } from 'homebridge';
 import { Config } from '../types';
 
 import handleSwitchGroups, {
@@ -57,7 +58,7 @@ export class Platform implements DynamicPlatformPlugin {
     // Dynamic Platform plugins should only register new accessories after this event was fired,
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
+    this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
@@ -75,6 +76,10 @@ export class Platform implements DynamicPlatformPlugin {
       accessory.UUID,
       `${accessory.context.name}-${accessory.context.subType ?? ''}`,
     );
+
+    accessory.on(this.hap.AccessoryEventTypes.IDENTIFY, () => {
+      this.log.info('%s identified!', accessory.displayName);
+    });
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.set(
