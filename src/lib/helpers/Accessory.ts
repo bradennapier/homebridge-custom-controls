@@ -144,6 +144,11 @@ export class Accessory {
       subType,
     });
 
+    service.controller.setCharacteristic(
+      this.platform.Characteristic.Name,
+      name,
+    );
+
     this.services.set(serviceUUID, service);
 
     return service;
