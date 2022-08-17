@@ -181,7 +181,7 @@ export class Accessory {
         `Checking ${service.UUID} / ${
           service.subtype ?? 'null'
         } for removal against: `,
-        this.services,
+        Array.from(this.services.keys()),
       );
 
       // Removes the unused services

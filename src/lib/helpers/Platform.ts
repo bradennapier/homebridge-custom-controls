@@ -96,7 +96,6 @@ export class Platform implements DynamicPlatformPlugin {
       'Loading accessory from cache:',
       accessory.UUID,
       `${accessory.context.name}-${accessory.context.subType ?? ''}`,
-      accessory,
     );
 
     accessory.on(this.hap.AccessoryEventTypes.IDENTIFY, () => {
@@ -118,6 +117,11 @@ export class Platform implements DynamicPlatformPlugin {
       case '/remove-all': {
         this.log.warn('Removing all accessories due to http request');
         this.removeAllAccessories();
+        break;
+      }
+      case '/reset-switch-groups': {
+        this.log.warn('Resetting Switch Groups');
+        handleSwitchGroups(this);
         break;
       }
       default:
