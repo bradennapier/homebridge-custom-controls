@@ -1,3 +1,4 @@
+import http from 'http';
 import type {
   API,
   DynamicPlatformPlugin,
@@ -70,7 +71,7 @@ export class Platform implements DynamicPlatformPlugin {
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
-
+      this.createHttpService();
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
       handleSwitchGroups(this);
@@ -108,5 +109,29 @@ export class Platform implements DynamicPlatformPlugin {
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.set(accessory.UUID, accessory);
+  }
+
+  private server: http.Server | undefined = undefined;
+
+  public handleRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+    switch (req.url) {
+      case '/remove-all': {
+        this.log.warn('Removing all accessories due to http request');
+        this.removeAllAccessories();
+        break;
+      }
+      default:
+        break;
+    }
+
+    res.writeHead(204); // 204 No content
+    res.end();
+  }
+
+  private createHttpService() {
+    this.server = http.createServer(this.handleRequest.bind(this));
+    this.server.listen(18081, () =>
+      this.log.info('Http server listening on 18081...'),
+    );
   }
 }
