@@ -74,7 +74,13 @@ export class ServiceNameBehavior extends Behavior<{
           this.service.params.name,
         );
         configuredName.setValue(this.service.params.name, { work: 'please' });
-      }, 1000);
+        this.log(
+          LogLevel.INFO,
+          'COnfigured name is now: ',
+          configuredName.value,
+          configuredName.state,
+        );
+      }, 10000);
     }
   }
 }
