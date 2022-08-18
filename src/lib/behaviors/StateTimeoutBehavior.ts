@@ -11,8 +11,8 @@ import { BehaviorTypes } from './types';
  *
  * @DependsOn BehaviorTypes.STATE
  */
-@DependsOn([BehaviorTypes.STATE])
 @UUID('ffdfc6eb-7b79-4078-b0fb-6f93f59fe095')
+@DependsOn([BehaviorTypes.STATE])
 export class StateTimeoutBehavior extends Behavior<{
   state: { one: string };
   // params: StateTimeoutBehaviorParams;
