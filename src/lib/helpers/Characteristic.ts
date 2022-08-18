@@ -38,6 +38,7 @@ export class Characteristic<V extends CharacteristicValue> {
   public get state() {
     this.service.state.attributes[this.type.UUID] ??= {};
     return this.service.state.attributes[this.type.UUID] as Readonly<{
+      name: string;
       set createdAt(value: Date | string);
       get createdAt(): string;
       set updatedAt(value: Date | string);
@@ -157,6 +158,10 @@ export class Characteristic<V extends CharacteristicValue> {
       isNew = true;
       this.#setState(
         {
+          name:
+            this.type.name ??
+            this.controller?.displayName ??
+            'Unknown Characteristic',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           updatedBy: 'server',
