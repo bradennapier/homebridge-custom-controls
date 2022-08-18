@@ -101,30 +101,6 @@ export class Service<
       });
       initialSetting = true;
     }
-
-    this.useCharacteristic(this.platform.Characteristic.Name, params.name);
-    const configuredName = this.useCharacteristic(
-      this.platform.Characteristic.ConfiguredName,
-      params.name,
-    );
-
-    configuredName.onChange((value, context) => {
-      this.log.info(
-        `${this.logName} Configured Name Change Detected: `,
-        value,
-        context,
-      );
-    });
-    // configuredName.state.setByUser !== true
-    if (initialSetting && configuredName.state.updatedBy !== 'user') {
-      setTimeout(() => {
-        this.log.info(
-          `${this.logName} }SET CONFIGURED NAME TO : `,
-          this.params.name,
-        );
-        configuredName.value = this.params.name;
-      }, 1000);
-    }
   }
 
   /**
