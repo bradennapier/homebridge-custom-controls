@@ -40,12 +40,12 @@ export class AccessoryInformationBehavior extends Behavior<{
 
   constructor(...args: [Service, AccessoryInformation]) {
     super(...args);
-    super.registerCharacteristics();
+    this.registerCharacteristics();
     this.#startSubscriptions();
   }
 
   #startSubscriptions() {
-    super.getAllCharacteristics().forEach((characteristic) => {
+    this.getAllCharacteristics().forEach((characteristic) => {
       characteristic.onGet((_context, _state) => {
         switch (characteristic.controller.UUID) {
           case this.platform.Characteristic.Name.UUID:

@@ -31,7 +31,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
 
   constructor(...args: [Service, undefined]) {
     super(...args);
-    super.registerCharacteristics();
+    this.registerCharacteristics();
     this.#startSubscriptions();
   }
 
