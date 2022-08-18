@@ -11,7 +11,10 @@
     "strict": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noImplicitOverride": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/", "package.json"],
   "exclude": ["**/*.spec.ts"]

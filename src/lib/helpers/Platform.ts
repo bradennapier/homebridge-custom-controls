@@ -1,10 +1,11 @@
 import http from 'http';
 import debug from 'debug';
-import type {
+import {
   API,
   DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
+  PlatformAccessoryEvent,
   PlatformConfig,
 } from 'homebridge';
 import { APIEvent } from 'homebridge';
@@ -14,7 +15,7 @@ import handleSwitchGroups, {
   type SwitchGroupController,
 } from '../controllers/switch-groups';
 
-import type { AccessoryCreationParams } from './Accessory';
+import type { AccessoryContext } from './Accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
 
 /**
@@ -32,8 +33,14 @@ export class Platform implements DynamicPlatformPlugin {
 
   public readonly accessories = new Map<
     PlatformAccessory['UUID'],
-    PlatformAccessory<AccessoryCreationParams>
+    PlatformAccessory<AccessoryContext>
   >();
+
+  /**
+   * The UUID for each configured accessory once registration is complete.  Compared against
+   * the accessories Map to remove accessories that are no longer configured.
+   */
+  public readonly configuredAccessories = new Set<string>();
 
   public get uuids() {
     return new Set(this.accessories.keys());
@@ -71,11 +78,13 @@ export class Platform implements DynamicPlatformPlugin {
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
-      log.debug('Executed didFinishLaunching callback');
+      // log.debug('Executed didFinishLaunching callback');
       this.createHttpService();
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
       handleSwitchGroups(this);
+
+      this.removeUnusedAccessories();
     });
   }
 
@@ -85,6 +94,7 @@ export class Platform implements DynamicPlatformPlugin {
       PLATFORM_NAME,
       this.activeAccessories,
     );
+
     this.accessories.clear();
   }
 
@@ -92,15 +102,16 @@ export class Platform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory<AccessoryCreationParams>) {
-    this.log.info(
-      'Loading accessory from cache:',
-      accessory.UUID,
-      `${accessory.context.name}-${accessory.context.subType ?? ''}`,
-    );
+  configureAccessory(accessory: PlatformAccessory<AccessoryContext>) {
+    // this.log.info(
+    //   'Loading accessory from cache:',
+    //   accessory.UUID,
+    //   `${accessory.context.name}-${accessory.context.subType ?? ''}`,
+    //   accessory.context,
+    // );
 
-    accessory.on(this.hap.AccessoryEventTypes.IDENTIFY, () => {
-      this.log.info('%s identified!', accessory.displayName);
+    accessory.on(PlatformAccessoryEvent.IDENTIFY, () => {
+      this.log.info(`Identified Accessory: ${accessory.displayName}`);
     });
 
     if (Array.from(this.accessories.keys()).includes(accessory.UUID)) {
@@ -109,6 +120,20 @@ export class Platform implements DynamicPlatformPlugin {
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.set(accessory.UUID, accessory);
+  }
+
+  public removeUnusedAccessories() {
+    const cachedAccessories = Array.from(this.accessories.values());
+    const configuredIDs = Array.from(this.configuredAccessories);
+    const unusedAccessories = cachedAccessories.filter(
+      (accessory) => !configuredIDs.includes(accessory.UUID),
+    );
+
+    this.api.unregisterPlatformAccessories(
+      PLUGIN_NAME,
+      PLATFORM_NAME,
+      unusedAccessories,
+    );
   }
 
   private server: http.Server | undefined = undefined;

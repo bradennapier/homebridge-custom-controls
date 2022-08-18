@@ -22,29 +22,24 @@ const config = {
   },
   ignorePatterns: ['dist'],
   rules: {
-    quotes: ['warn', 'single'],
-    indent: ['warn', 2, { SwitchCase: 1 }],
-    'comma-dangle': ['warn', 'always-multiline'],
-    'dot-notation': 'off',
     eqeqeq: 'warn',
     curly: ['warn', 'all'],
-    'brace-style': ['warn'],
-    'prefer-arrow-callback': ['warn'],
+    'prefer-arrow-callback': ['off'],
     'no-console': ['warn'], // use the provided Homebridge log method instead
-    'no-non-null-assertion': ['off'],
     'comma-spacing': ['error'],
-    'no-multi-spaces': ['warn', { ignoreEOLComments: true }],
-    'no-trailing-spaces': ['warn'],
-    'lines-between-class-members': [
-      'warn',
-      'always',
-      { exceptAfterSingleLine: true },
+
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        // not available yet?
+        // destructuredArrayIgnorePattern: '^_',
+      },
     ],
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/semi': ['warn'],
-    '@typescript-eslint/member-delimiter-style': ['warn'],
+    '@typescript-eslint/no-this-alias': ['error', { allowedNames: ['self'] }],
   },
   settings: {
     'import/parsers': {

@@ -17,11 +17,23 @@
         "placeholder": "Unique Group Name",
         "description": "The name of the group, that is initially used as the display name."
       },
+      "groupUID": {
+        "title": "Group Unique ID",
+        "type": "string",
+        "placeholder": "Unique Value (e.g bathroom-settings-group)",
+        "description": "Provide a unique id that will never change even if the name does.  This must be unique to all other switches in the group."
+      },
       "switchName": {
         "title": "Switch Name",
         "type": "string",
-        "placeholder": "Unique Switch Name",
+        "placeholder": "Switch Name",
         "description": "The name of the switch, that is initially used as the display name."
+      },
+      "switchUID": {
+        "title": "Switch Unique ID",
+        "type": "string",
+        "placeholder": "Unique Value (e.g bathroom-occupancy-toggle-switch)",
+        "description": "Provide a unique id that will never change even if the name does.  This must be unique to all other switches in the group."
       },
       "displayAs": {
         "title": "Display As",
@@ -91,6 +103,56 @@
           {
             "value": "majorityOff",
             "name": "<b>Majority Off</b> - A contact sensor which will be closed when at least half of the switches in the group are off."
+          }
+        ]
+      },
+      "includeControls": {
+        "title": "Include Controls",
+        "notitle": true,
+        "description": "<code>Eve</code>, <code>Homekit Controller</code>, and others can provide dynamic manipulation of properties of the switch in automations, scenes, and for display.  Which would you like included for this item?",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "timeoutCountdown",
+            "timeoutSet",
+            "timeoutHold",
+            "setContext",
+            "lastChanged",
+            "majorityOff",
+            "majorityOn",
+            "anyOn",
+            "anyOff"
+          ]
+        },
+        "titleMap": [
+          {
+            "value": "timeoutCountdown",
+            "name": "<b>Timeout: Countdown</b> - Provide a countdown timer on Eve App that reflects the time until the timeout expires for the item. <code>Read-Only</code>"
+          },
+          {
+            "value": "timeoutSet",
+            "name": "<b>Timeout: Set</b> - Provides the ability to dynamically change the timeout for the item.  Allows natural language such as <code>1h 20m</code> (<a href=\"https://github.com/jkroso/parse-duration\">More Options</a>).  If only a number is provided, will set as seconds."
+          },
+          {
+            "value": "timeoutHold",
+            "name": "<b>Timeout: Hold</b> - An option that will allow placing a temporary hold on the configured timeout so it will not run until this is turned off."
+          },
+          {
+            "value": "setContext",
+            "name": "<b>Set: Context</b> - Provides a text input that allows you to save any string value to the switch.  This can be queried in various places like Shortcuts."
+          },
+          {
+            "value": "lastChanged",
+            "name": "<b>Last Changed</b> - Display the last time the value was changed in human-readable format (e.g 2 days, 2 hours ago). <code>Read-Only</code>"
+          },
+          {
+            "value": "value",
+            "name": "<b>title</b> - description"
+          },
+          {
+            "value": "value",
+            "name": "<b>title</b> - description"
           }
         ]
       },
@@ -169,19 +231,22 @@
         "description": "Groups of switches which can have mixed properties such as stateful, stateless, delayable, etc.  Each switch is independent of its siblings.",
         "items": {
           "type": "object",
-          "required": ["name"],
+          "required": ["name", "groupUID"],
           "properties": {
             "name": { "$ref": "#/definitions/groupName" },
+            "uniqueID": { "$ref": "#/definitions/groupUID" },
             "displayAs": { "$ref": "#/definitions/displayAs" },
             "includeSensors": { "$ref": "#/definitions/includeSensors" },
             "switches": {
               "title": "Group Switches",
+              "notitle": true,
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["name", "switchType"],
+                "required": ["name", "switchType", "switchUID"],
                 "properties": {
                   "name": { "$ref": "#/definitions/switchName" },
+                  "uniqueID": { "$ref": "#/definitions/switchUID" },
                   "switchType": {
                     "$ref": "#/definitions/switchType"
                   },
@@ -260,8 +325,18 @@
         {
           "type": "fieldset",
           "items": [
-            "switchGroups[].name",
-            "switchGroups[].displayAs",
+            {
+              "type": "section",
+              "title": "Group Setup",
+              "expandable": false,
+              "expanded": true,
+              "items": [
+                "switchGroups[].name",
+                "switchGroups[].uniqueID",
+                "switchGroups[].displayAs"
+              ]
+            },
+
             {
               "type": "section",
               "title": "Included Group Smart Sensors",
@@ -277,6 +352,7 @@
                   "type": "array",
                   "items": [
                     "switchGroups[].switches[].name",
+                    "switchGroups[].switches[].uniqueID",
                     {
                       "key": "switchGroups[].switches[].switchType",
                       "type": "section",

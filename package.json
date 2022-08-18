@@ -34,13 +34,16 @@
   ],
   "dependencies": {
     "@types/eslint": "^8.4.5",
+    "@ungap/structured-clone": "^1.0.1",
     "debug": "^4.3.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1"
+    "eslint-plugin-prettier": "^4.2.1",
+    "parse-duration": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.49",
+    "@types/ungap__structured-clone": "^0.3.0",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "eslint": "^8.22.0",

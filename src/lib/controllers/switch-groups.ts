@@ -4,18 +4,26 @@ import { Accessory } from '../helpers/Accessory';
 
 import type { Config, SwitchConfig, SwitchGroup } from '../types';
 
+import { PACKAGE_VERSION } from '../../settings';
+import {
+  StateTimeoutBehavior,
+  StateBehaviorLock,
+  StateBehaviorSwitch,
+} from '../behaviors';
+
 const SWITCH_GROUP_SUBTYPE = 'switchGroup';
 
-type SwitchAccessoryContext = {
-  uuid: string;
-  subType: 'switchGroup';
-};
+// type SwitchAccessoryContext = {
+//   uuid: string;
+//   subType: 'switchGroup';
+// };
 
 /**
  * Represents a controller for a single group. A group consists of multiple switches and acts as a radio button group.
  */
 export class SwitchGroupController {
   private accessory: Accessory;
+  private log = this.platform.log;
 
   /**
    * Contains the characteristics of all switches and their configurations.
@@ -35,19 +43,18 @@ export class SwitchGroupController {
    * @param group The configuration of the group that is represented by this controller.
    */
   constructor(private platform: Platform, private group: SwitchGroup) {
-    platform.log.info(`[group/${group.name}] Initializing Group...`);
+    platform.log.info(`[group/${group.name}] Initializing Group...`, group);
 
     this.accessory = new Accessory(platform, {
       name: group.name,
-      subType: SWITCH_GROUP_SUBTYPE,
+      subType: `${SWITCH_GROUP_SUBTYPE}-${group.uniqueID}`,
     });
 
     this.accessory.setInformation({
-      manufacturer: 'YourFriend',
+      manufacturer: group.name,
       model: SWITCH_GROUP_SUBTYPE,
-      serialNumber: group.name,
-      firmwareRevision: undefined,
-      hardwareRevision: undefined,
+      serialNumber: group.uniqueID,
+      firmwareRevision: PACKAGE_VERSION,
     });
 
     // Creates all switches of the controller
@@ -65,54 +72,48 @@ export class SwitchGroupController {
         break;
       }
 
-      const onHandler = service.useCharacteristic<boolean>(
-        this.platform.Characteristic.On,
-      );
-
-      this.onHandlers.set(service.controller.UUID, {
-        item: item,
-        handler: onHandler,
-      });
-
-      // Subscribes for changes of the switch state
-      onHandler.onChange = (newValue) => {
-        if (onHandler.value !== newValue) {
-          platform.log.info(
-            `[${group.name}] switch ${item.name} changed to ${newValue}`,
-          );
-
-          // Starts the timeout if the switch is on
-          if (newValue && typeof item.timeoutSeconds === 'number') {
-            this.updateTimeout(item);
-          }
-
-          onHandler.value = newValue;
-        }
-      };
+      // service.removeUnusedCharacteristics();
     }
 
     this.accessory.cleanupServices();
   }
 
   private getSwitchService(item: SwitchConfig) {
+    const opts = {
+      params: {
+        config: item,
+      },
+    };
     switch (this.group.displayAs) {
       case 'locks':
         return this.accessory.useService(
           this.platform.Service.LockMechanism,
           item.name,
-          `${item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
+          `${item.uniqueID ?? item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
+          {
+            ...opts,
+            behaviors: [StateBehaviorLock, StateTimeoutBehavior],
+          },
         );
       case 'power':
         return this.accessory.useService(
           this.platform.Service.Outlet,
           item.name,
-          `${item.name}-${SWITCH_GROUP_SUBTYPE}-outlet`,
+          `${item.uniqueID}-${SWITCH_GROUP_SUBTYPE}-outlet`,
+          {
+            ...opts,
+            behaviors: [StateBehaviorSwitch, StateTimeoutBehavior],
+          },
         );
       case 'switches':
         return this.accessory.useService(
           this.platform.Service.Switch,
           item.name,
-          `${item.name}-${SWITCH_GROUP_SUBTYPE}-switch`,
+          `${item.uniqueID}-${SWITCH_GROUP_SUBTYPE}-switch`,
+          {
+            ...opts,
+            behaviors: [StateBehaviorSwitch, StateTimeoutBehavior],
+          },
         );
       default:
         return null;
@@ -128,7 +129,7 @@ export class SwitchGroupController {
 
     if (!config) {
       this.platform.log.warn(
-        `[SwitchGroup/${this.group.name}] no config found for switch ${item.name}`,
+        `[SwitchGroup/${this.group.name}] no config found for switch ${item.name}!`,
       );
       return;
     }
@@ -148,20 +149,51 @@ export class SwitchGroupController {
 export default function handleSwitchGroups(platform: Platform) {
   const { switchGroups = [] } = platform.config as Config;
 
+  const uniqueGroupIDs = new Set<string>();
+
   // Cycles over all configured groups and creates the corresponding controllers
   for (const group of switchGroups) {
-    if (group.name && group.switches) {
-      // Checks whether the switches are configured properly
-      if (group.switches.some((s) => !s.name)) {
-        platform.log.warn(
-          `[${group.name}] Switches are not configured properly.`,
-        );
-        continue;
+    if (uniqueGroupIDs.has(group.uniqueID)) {
+      platform.log.error(
+        `[SwitchGroupController] Duplicate uniqueID for switch group "${group.uniqueID}" found in config, ignoring group until fixed!`,
+      );
+      continue;
+    }
+
+    uniqueGroupIDs.add(group.uniqueID);
+
+    const uniqueSwitchIDs = new Set<string>();
+    let isValidated = true;
+
+    // TODO: if no switches we may just use it for sensors
+    if (group.uniqueID && group.name && group.switches) {
+      if (Array.isArray(group.switches)) {
+        group.switches.forEach((switchConfig) => {
+          if (uniqueSwitchIDs.has(switchConfig.uniqueID)) {
+            platform.log.error(
+              `[SwitchGroupController] Duplicate uniqueID for switch "${switchConfig.uniqueID}" with name ${switchConfig.name}" found in group switchGroup "${group.name}", ignoring switch until fixed!`,
+            );
+            isValidated = false;
+            return;
+          }
+
+          uniqueSwitchIDs.add(switchConfig.uniqueID);
+
+          if (!switchConfig.name) {
+            platform.log.error(
+              `[SwitchGroupController] Switch with uniqueID "${switchConfig.uniqueID}" has no name, ignoring switch until fixed!`,
+            );
+            isValidated = false;
+            return;
+          }
+        });
       }
 
-      // Creates a new controller for the group
-      const controller = new SwitchGroupController(platform, group);
-      platform.controllers.switchGroups.add(controller);
+      if (isValidated) {
+        // Creates a new controller for the group
+        const controller = new SwitchGroupController(platform, group);
+        platform.controllers.switchGroups.add(controller);
+      }
     } else {
       platform.log.warn('Group name missing in the configuration.');
     }

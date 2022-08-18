@@ -1,9 +1,9 @@
 import type {
-  PlatformConfig,
   Characteristic as ServiceCharacteristic,
   Service as AccessoryService,
   WithUUID,
 } from 'homebridge';
+import type { Service } from './helpers';
 
 export type CharacteristicWithUUID = {
   [K in keyof typeof ServiceCharacteristic]: typeof ServiceCharacteristic[K] extends WithUUID<
@@ -39,6 +39,7 @@ export type SpecialSensorTypes = 'systemStartup';
 
 export type SwitchConfig = {
   name: string;
+  uniqueID: string;
   switchType:
     | 'stateful'
     | 'stateful-timeout'
@@ -51,6 +52,7 @@ export type SwitchConfig = {
 
 export type SwitchGroup = {
   name: string;
+  uniqueID: string;
   displayAs: 'switches' | 'power' | 'locks';
   includeSensors?: SwitchSensorTypes[];
   switches: SwitchConfig[];
@@ -90,3 +92,30 @@ export type AccessoryInformation = {
    */
   hardwareRevision?: string;
 };
+
+export type AnyObj = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};
+
+export type Writable<O> = {
+  -readonly [K in keyof O]: O[K];
+};
+
+type ServiceBehaviorsImport = typeof import('./behaviors');
+
+export type ServiceBehaviors =
+  ServiceBehaviorsImport[keyof ServiceBehaviorsImport];
+
+type ServiceBehaviorsMapped = {
+  [K in keyof ServiceBehaviorsImport]: ConstructorParameters<
+    ServiceBehaviorsImport[K]
+  > extends [Service, infer P]
+    ? P extends undefined
+      ? ServiceBehaviorsImport[K] | [ServiceBehaviorsImport[K], P]
+      : [ServiceBehaviorsImport[K], P]
+    : ServiceBehaviorsImport[K];
+};
+
+export type ServiceBehaviorsParam =
+  ServiceBehaviorsMapped[keyof ServiceBehaviorsMapped];
