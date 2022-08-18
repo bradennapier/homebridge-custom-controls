@@ -154,13 +154,11 @@ export abstract class Behavior<
  *  class StateTimeoutBehavior extends Behavior {}}
  */
 export function DependsOn(types: readonly BehaviorTypes[]) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  return function (constructor: Function) {
-    console.log('DependsOn Exec', constructor, constructor.prototype);
-    constructor[DependsOnKey] = types;
-    constructor.prototype[DependsOnKey] = types;
-    constructor.prototype.constructor[DependsOnKey] = types;
-    constructor.prototype.constructor.prototype[DependsOnKey] = types;
+  // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+  return function <T extends { new (...args: any[]): {} }>(constructor: T) {
+    return class extends constructor {
+      readonly [DependsOnKey]: readonly BehaviorTypes[] = types;
+    };
   };
 }
 
