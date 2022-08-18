@@ -61,14 +61,20 @@ export abstract class Behavior<
     setTimeout(() => this.#checkDependencies(), 0);
   }
 
-  protected registerCharacteristics() {
+  protected registerCharacteristics(
+    defaultValues: Map<CharacteristicWithUUID, any> = new Map(),
+  ) {
     if (this.params) {
       this.State.params = this.params;
     }
     this.characteristics.forEach((characteristic) => {
       this.#characteristicMap.set(
         characteristic,
-        this.service.useCharacteristic(characteristic, undefined, true),
+        this.service.useCharacteristic(
+          characteristic,
+          defaultValues.get(characteristic),
+          true,
+        ),
       );
     });
     this.service.behaviors.byUUID.set(

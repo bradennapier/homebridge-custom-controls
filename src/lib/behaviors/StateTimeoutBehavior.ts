@@ -40,7 +40,12 @@ export class StateTimeoutBehavior extends Behavior<{
 
   constructor(...args: [Service, undefined]) {
     super(...args);
-    super.registerCharacteristics();
+    super.registerCharacteristics(
+      new Map([
+        [this.#type.HoldPosition, 0],
+        [this.#type.RemainingDuration, 0],
+      ]),
+    );
     this.#startSubscriptions();
   }
 
