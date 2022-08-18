@@ -111,8 +111,14 @@ export abstract class Behavior<
     type: C,
   ): NonNullable<Service['behaviors']['types'][C]> {
     const behavior = this.service.behaviors.types[type];
-
-    if (!this[DependsOnKey].includes(type) || !behavior) {
+    this.log(
+      LogLevel.INFO,
+      'Depends? ',
+      this[DependsOnKey].includes(type),
+      type,
+      this[DependsOnKey],
+    );
+    if (!this[DependsOnKey].includes(type)) {
       throw new Error(
         `${this.logName} may only use getType if it indicates a dependency with @DependsOn([${type}])`,
       );
