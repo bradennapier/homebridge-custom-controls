@@ -42,8 +42,7 @@ export abstract class Behavior<
 
   abstract characteristics: Set<CharacteristicWithUUID>;
 
-  protected readonly [DependsOnKey]: readonly BehaviorTypes[] =
-    this[DependsOnKey];
+  protected readonly [DependsOnKey]: readonly BehaviorTypes[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   #characteristicMap = new Map<CharacteristicWithUUID, Characteristic<any>>();
