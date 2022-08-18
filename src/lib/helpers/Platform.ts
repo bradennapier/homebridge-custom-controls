@@ -160,6 +160,17 @@ export class Platform implements DynamicPlatformPlugin {
         debug.disable();
         break;
       }
+      case '/context': {
+        res.setHeader('Content-Type', 'application/text');
+        res.end(
+          JSON.stringify(
+            [...this.accessories.values()].map((acc) => acc.context),
+            null,
+            2,
+          ),
+        );
+        return;
+      }
       default:
         break;
     }
