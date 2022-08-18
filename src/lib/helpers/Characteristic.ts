@@ -157,8 +157,8 @@ export class Characteristic<V extends CharacteristicValue> {
       isNew = true;
       this.#setState(
         {
-          createdAt: new Date().toString(),
-          updatedAt: new Date().toString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           updatedBy: 'server',
           initialValue,
           oldValue: state.oldValue ?? null,

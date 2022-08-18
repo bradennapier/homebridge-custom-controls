@@ -18,8 +18,6 @@ export class AccessoryInformationBehavior extends Behavior<{
   public readonly name = this.constructor.name;
 
   readonly #type = {
-    Name: this.platform.Characteristic.Name,
-    ConfiguredName: this.platform.Characteristic.ConfiguredName,
     Manufacturer: this.platform.Characteristic.Manufacturer,
     Model: this.platform.Characteristic.Model,
     SerialNumber: this.platform.Characteristic.SerialNumber,
@@ -49,10 +47,6 @@ export class AccessoryInformationBehavior extends Behavior<{
     this.getAllCharacteristics().forEach((characteristic) => {
       characteristic.onGet((_context, _state) => {
         switch (characteristic.controller.UUID) {
-          case this.platform.Characteristic.ConfiguredName.UUID:
-            return characteristic.state.value ?? 'Name Unknown?';
-          case this.platform.Characteristic.Name.UUID:
-            return characteristic.state.value ?? 'Name Unknown?';
           case this.platform.Characteristic.Manufacturer.UUID:
             return this.service.accessory.params.name;
           case this.platform.Characteristic.Model.UUID:
@@ -74,26 +68,5 @@ export class AccessoryInformationBehavior extends Behavior<{
         }
       });
     });
-
-    const configuredName = this.get(this.#type.ConfiguredName);
-    configuredName.onChange((value, context) => {
-      this.log(
-        LogLevel.INFO,
-        ` Configured Name Change Detected: `,
-        value,
-        context,
-      );
-    });
-    // configuredName.state.setByUser !== true
-    if (configuredName.state.updatedBy !== 'user') {
-      setTimeout(() => {
-        this.log(
-          LogLevel.INFO,
-          `SET CONFIGURED NAME TO : `,
-          configuredName.state.value,
-        );
-        configuredName.setValue(configuredName.state.value, { work: 'please' });
-      }, 1000);
-    }
   }
 }

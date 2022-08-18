@@ -8,8 +8,8 @@ import { Behavior, UUID } from './AbstractBehavior';
  * are required for all accessories to function.  This behavior handles the definitions
  * of the various metadata values on each item such as the Model, Name, Manufacturer.
  */
-@UUID('105f3b5e-a27e-4c8c-8ffd-409b9ca6eb3e')
-export class AccessoryInformationBehavior extends Behavior<{
+@UUID('72530653-aacb-42db-9e1c-8298adb176e0')
+export class ServiceNameBehavior extends Behavior<{
   params: AccessoryInformation;
   // state: {}
 }> {
