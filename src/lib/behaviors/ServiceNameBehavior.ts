@@ -33,7 +33,7 @@ export class ServiceNameBehavior extends Behavior<{
     return this.#state as Readonly<typeof this.state>;
   }
 
-  constructor(...args: [Service, AccessoryInformation]) {
+  constructor(...args: [Service, undefined]) {
     super(...args);
     this.registerCharacteristics(
       new Map([

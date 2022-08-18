@@ -1,6 +1,7 @@
 import type { API, Logger, Categories, PlatformAccessory } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
 import { AccessoryInformationBehavior } from '../behaviors';
+import { ServiceNameBehavior } from '../behaviors/ServiceNameBehavior';
 import type {
   AccessoryInformation,
   AnyObj,
@@ -164,6 +165,8 @@ export class Accessory {
         new (ServiceBehavior as any)(service, params);
       });
     }
+
+    new ServiceNameBehavior(service, undefined);
 
     return service;
   }
