@@ -161,7 +161,7 @@ export class Platform implements DynamicPlatformPlugin {
         break;
       }
       case '/context': {
-        res.setHeader('Content-Type', 'application/text');
+        res.setHeader('Content-Type', 'application/json');
         res.end(
           JSON.stringify(
             [...this.accessories.values()].map((acc) => acc.context),
