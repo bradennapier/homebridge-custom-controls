@@ -88,7 +88,7 @@ export class Service<
     this.state.attributes ??= {};
     this.state.behaviors ??= {};
 
-    let initialSetting = false;
+    // const initialSetting = false;
 
     if (
       !this.state.initialName ||
@@ -99,7 +99,7 @@ export class Service<
         initialName: this.params.name,
         attributes: {},
       });
-      initialSetting = true;
+      // initialSetting = true;
     }
   }
 
