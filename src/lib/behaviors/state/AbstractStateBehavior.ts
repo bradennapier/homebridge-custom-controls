@@ -5,8 +5,10 @@ export default abstract class StateBehavior<
   O extends BehaviorParams = BehaviorParams,
 > extends Behavior<O> {
   // abstract setState(): void;
-  protected override registerCharacteristics() {
-    super.registerCharacteristics();
+  protected override registerCharacteristics(
+    ...args: Parameters<Behavior['registerCharacteristics']>
+  ) {
+    super.registerCharacteristics(...args);
     this.service.behaviors.types[BehaviorTypes.STATE] =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this as any;

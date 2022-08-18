@@ -31,7 +31,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
 
   constructor(...args: [Service, undefined]) {
     super(...args);
-    this.registerCharacteristics();
+    this.registerCharacteristics(new Map([[this.#type.On, false]]));
     this.#startSubscriptions();
   }
 

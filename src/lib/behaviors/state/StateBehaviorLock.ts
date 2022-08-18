@@ -32,7 +32,12 @@ export class StateBehaviorLock extends StateBehavior<{
 
   constructor(...args: [Service, undefined]) {
     super(...args);
-    super.registerCharacteristics();
+    super.registerCharacteristics(
+      new Map([
+        [this.#type.LockCurrentState, this.#type.LockCurrentState.SECURED],
+        [this.#type.LockTargetState, this.#type.LockTargetState.SECURED],
+      ]),
+    );
     this.#startSubscriptions();
   }
 
