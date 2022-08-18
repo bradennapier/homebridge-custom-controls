@@ -30,10 +30,10 @@ export class StateTimeoutBehavior extends Behavior<{
   ]);
 
   get #state() {
-    return super.state;
+    return this.State;
   }
 
-  override get state() {
+  get state() {
     const state = this.#state;
     return state as Readonly<typeof state>;
   }

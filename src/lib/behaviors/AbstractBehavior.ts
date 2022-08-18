@@ -47,7 +47,7 @@ export abstract class Behavior<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   #characteristicMap = new Map<CharacteristicWithUUID, Characteristic<any>>();
 
-  protected get state() {
+  protected get State() {
     this.service.state.behaviors[this.UUID] ??= {};
     return this.service.state.behaviors[this.UUID] as S & {
       params: P;
@@ -63,7 +63,7 @@ export abstract class Behavior<
 
   protected registerCharacteristics() {
     if (this.params) {
-      this.state.params = this.params;
+      this.State.params = this.params;
     }
     this.characteristics.forEach((characteristic) => {
       this.#characteristicMap.set(
