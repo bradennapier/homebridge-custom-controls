@@ -37,8 +37,8 @@ export class ServiceNameBehavior extends Behavior<{
     super(...args);
     this.registerCharacteristics(
       new Map([
-        [this.#type.Name, this.service.params.name],
-        [this.#type.ConfiguredName, this.service.params.name],
+        [this.#type.Name, 'Switch1'],
+        [this.#type.ConfiguredName, 'Switch1'],
       ]),
     );
     this.#startSubscriptions();
@@ -57,6 +57,8 @@ export class ServiceNameBehavior extends Behavior<{
     });
 
     const configuredName = this.get(this.#type.ConfiguredName);
+    const nameProp = this.get(this.#type.Name);
+
     configuredName.onChange((value, context) => {
       this.log(
         LogLevel.INFO,
@@ -74,13 +76,14 @@ export class ServiceNameBehavior extends Behavior<{
           this.service.params.name,
         );
         configuredName.setValue(this.service.params.name, { work: 'please' });
+        configuredName.controller.setValue(this.service.params.name);
         this.log(
           LogLevel.INFO,
           'COnfigured name is now: ',
           configuredName.value,
           configuredName.state,
         );
-      }, 10000);
+      }, 1000);
     }
   }
 }
