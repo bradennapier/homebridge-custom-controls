@@ -48,8 +48,8 @@ export class Service<
   public controller: AccessoryService;
 
   public get logName() {
-    return `[${this.accessory.controller.displayName}] [${
-      this.controller.displayName ?? this.params.name ?? this.type.name
+    return `[${this.accessory.controller?.displayName}] [${
+      this.controller?.displayName ?? this.params.name ?? this.type.name
     }]`;
   }
 
