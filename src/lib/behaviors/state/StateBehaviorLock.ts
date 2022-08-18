@@ -23,10 +23,10 @@ export class StateBehaviorLock extends StateBehavior<{
   ]);
 
   get #state() {
-    return super.state;
+    return this.State;
   }
 
-  override get state() {
+  get state() {
     return this.#state as Readonly<typeof this.state>;
   }
 
