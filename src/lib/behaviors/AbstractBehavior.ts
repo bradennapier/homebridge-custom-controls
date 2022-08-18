@@ -156,6 +156,7 @@ export function DependsOn(types: readonly BehaviorTypes[]) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return function (constructor: Function) {
     constructor.prototype[DependsOnKey] = types;
+    constructor.prototype.constructor.prototype[DependsOnKey] = types;
   };
 }
 
