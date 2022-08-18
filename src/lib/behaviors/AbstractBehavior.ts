@@ -51,6 +51,7 @@ export abstract class Behavior<
   protected get State() {
     this.service.state.behaviors[this.UUID] ??= {};
     return this.service.state.behaviors[this.UUID] as S & {
+      name: string;
       params: P;
     };
   }
@@ -68,6 +69,7 @@ export abstract class Behavior<
     if (this.params) {
       this.State.params = this.params;
     }
+    this.State.name = this.name ?? this.constructor.name;
     this.characteristics.forEach((characteristic) => {
       this.#characteristicMap.set(
         characteristic,
