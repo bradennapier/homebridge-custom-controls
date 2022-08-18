@@ -117,6 +117,7 @@ export abstract class Behavior<
       this[DependsOnKey].includes(type),
       type,
       this[DependsOnKey],
+      this.UUID,
     );
     if (!this[DependsOnKey].includes(type)) {
       throw new Error(
@@ -155,6 +156,7 @@ export abstract class Behavior<
 export function DependsOn(types: readonly BehaviorTypes[]) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return function (constructor: Function) {
+    console.log('DependsOn Exec', constructor, constructor.prototype);
     constructor.prototype[DependsOnKey] = types;
     constructor.prototype.constructor.prototype[DependsOnKey] = types;
   };
