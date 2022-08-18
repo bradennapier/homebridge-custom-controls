@@ -59,7 +59,7 @@ export abstract class Behavior<
     public readonly service: Service,
     public readonly params: P | void | undefined = {} as P,
   ) {
-    setTimeout(() => this.#checkDependencies(), 0);
+    this.#checkDependencies();
   }
 
   protected registerCharacteristics(
