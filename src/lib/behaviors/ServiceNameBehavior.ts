@@ -76,6 +76,7 @@ export class ServiceNameBehavior extends Behavior<{
           this.service.params.name,
         );
         configuredName.setValue(this.service.params.name, { work: 'please' });
+        nameProp.setValue(this.service.params.name, { work: 'please' });
         configuredName.controller.setValue(this.service.params.name);
         this.log(
           LogLevel.INFO,
