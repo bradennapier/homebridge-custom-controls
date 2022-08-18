@@ -157,9 +157,14 @@ export abstract class Behavior<
 export function DependsOn(types: readonly BehaviorTypes[]) {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
-    return class DependsOn extends constructor {
+    constructor.prototype[DependsOnKey] = types;
+    constructor[DependsOnKey] = types;
+    console.log(constructor, constructor.prototype);
+    const value = class DependsOn extends constructor {
       [DependsOnKey] = types;
     };
+    console.log('value: ', value);
+    return value;
   };
 }
 
