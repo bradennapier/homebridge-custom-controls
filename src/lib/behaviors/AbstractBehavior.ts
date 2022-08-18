@@ -42,7 +42,8 @@ export abstract class Behavior<
 
   abstract characteristics: Set<CharacteristicWithUUID>;
 
-  protected readonly [DependsOnKey]: readonly BehaviorTypes[] = [];
+  protected readonly [DependsOnKey]: readonly BehaviorTypes[] =
+    this[DependsOnKey];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   #characteristicMap = new Map<CharacteristicWithUUID, Characteristic<any>>();
@@ -156,8 +157,8 @@ export abstract class Behavior<
 export function DependsOn(types: readonly BehaviorTypes[]) {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
-    return class extends constructor {
-      readonly [DependsOnKey]: readonly BehaviorTypes[] = types;
+    return class DependsOn extends constructor {
+      [DependsOnKey] = types;
     };
   };
 }
