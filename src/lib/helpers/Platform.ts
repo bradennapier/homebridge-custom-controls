@@ -150,9 +150,9 @@ export class Platform implements DynamicPlatformPlugin {
     this.log.info(`Request: `, url);
     const urlPath = url.pathname.split(path.sep);
     urlPath.shift();
-
-    this.log.info('Parts: ', urlPath);
-    switch (urlPath[0]) {
+    const endpoint = urlPath.shift();
+    this.log.info('Parts: ', endpoint, urlPath);
+    switch (endpoint) {
       case 'remove-all': {
         this.log.warn('Removing all accessories due to http request');
         this.removeAllAccessories();
@@ -175,7 +175,6 @@ export class Platform implements DynamicPlatformPlugin {
         break;
       }
       case 'context': {
-        this.log.info('Context Getter');
         res.setHeader('Content-Type', 'application/json');
         res.end(
           JSON.stringify(
