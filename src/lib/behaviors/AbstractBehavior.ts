@@ -123,8 +123,13 @@ export abstract class Behavior<
   public get<C extends CharacteristicWithUUID>(
     $characteristic: C | ((types: this['type']) => C),
   ) {
+    console.log(
+      typeof $characteristic,
+      $characteristic,
+      'UUID' in $characteristic,
+    );
     const characteristic =
-      $characteristic instanceof this.platform.hap.Characteristic
+      'UUID' in $characteristic
         ? ($characteristic as C)
         : ($characteristic as (types: this['type']) => C)(this.type);
 
