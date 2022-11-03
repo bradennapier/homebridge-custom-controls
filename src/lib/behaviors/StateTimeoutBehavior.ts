@@ -122,11 +122,12 @@ export class StateTimeoutBehavior extends Behavior<{
                   LogLevel.INFO,
                   `RemainingDuration HOLD POSITION IS TRUE, RESETTING TIMER`,
                 );
-
-                stateChara.setValue(false);
                 holdPosition.setValue(false);
-                await sleep(100);
-                stateChara.setValue(true);
+                setTimeout(() => {
+                  stateChara.setValue(false);
+
+                  stateChara.setValue(true);
+                });
 
                 break;
               }
