@@ -47,7 +47,7 @@ export class StateTimeoutBehavior extends Behavior<{
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
         [this.type.RemainingDuration, 0],
-        [this.type.SetDuration, null],
+        [this.type.SetDuration, 0],
       ]),
     );
     this.startSubscriptions().then(() => {
@@ -98,6 +98,11 @@ export class StateTimeoutBehavior extends Behavior<{
             for await (const startTime of forAwaitInterval(1000, Date.now())) {
               const setDurationValue = setDuration.value;
 
+              if (remainingDuration.value === 0) {
+                stateChara.setValue(false);
+                break;
+              }
+
               if (stateChara.value === false) {
                 this.log(LogLevel.INFO, `RemainingDuration OFF , cancel timer`);
                 break;
@@ -117,6 +122,7 @@ export class StateTimeoutBehavior extends Behavior<{
                   LogLevel.INFO,
                   `RemainingDuration HOLD POSITION IS TRUE, RESETTING`,
                 );
+                remainingDuration.setValue(0);
                 stateChara.setValue(false);
 
                 break;
@@ -124,7 +130,13 @@ export class StateTimeoutBehavior extends Behavior<{
 
               const now = Date.now();
               const elapsed = Math.round((now - startTime) / 1000);
-              const remaining = setDurationValue - elapsed;
+              const remaining = Math.max(0, setDurationValue - elapsed);
+
+              if (remaining <= 0) {
+                this.log(LogLevel.INFO, `RemainingDuration TIMED OUT`);
+                stateChara.setValue(false);
+                break;
+              }
 
               this.log(
                 LogLevel.INFO,
