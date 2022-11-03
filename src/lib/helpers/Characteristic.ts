@@ -212,8 +212,10 @@ export class Characteristic<V extends CharacteristicValue> {
           this.setState({ value }, context, false);
         }
       } catch (error) {
-        console.error(
-          `Failed to Call handler ${String(context)} for onGet due to Error: `,
+        this.log.error(
+          `${this.logName} Failed to Call handler ${String(
+            context,
+          )} for onGet due to Error: `,
           error,
         );
         throw error;
@@ -224,7 +226,6 @@ export class Characteristic<V extends CharacteristicValue> {
   }
 
   private subscribeToChanges() {
-    console.info(this.subscribeToChanges.name);
     this.controller.on('change', async (change) => {
       const { oldValue, newValue } = change;
 
