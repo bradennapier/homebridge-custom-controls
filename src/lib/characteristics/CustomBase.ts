@@ -15,7 +15,7 @@ export default function CustomCharacteristic(platform: Platform) {
     static UUID: string = CUSTOM_INFO_UUID;
 
     constructor() {
-      super('Custom Info', CUSTOM_INFO_UUID, {
+      super('Custom Info 2', CUSTOM_INFO_UUID, {
         format: Formats.UINT16,
         unit: Units.SECONDS,
         minValue: 0,
