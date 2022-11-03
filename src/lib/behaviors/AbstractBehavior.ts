@@ -59,7 +59,7 @@ export abstract class Behavior<
     }]`;
   }
 
-  abstract characteristics: Set<CharacteristicWithUUID>;
+  abstract readonly characteristics: Set<CharacteristicWithUUID>;
 
   protected static readonly [DependsOnKey]: readonly BehaviorTypes[] =
     this[DependsOnKey] ?? [];
