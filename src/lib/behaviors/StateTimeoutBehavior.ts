@@ -43,7 +43,7 @@ export class StateTimeoutBehavior extends Behavior<{
     super.registerCharacteristics(
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
-        [this.type.RemainingDuration, 0],
+        [this.type.RemainingDuration, 1000],
       ]),
     );
     this.startSubscriptions();
@@ -52,6 +52,8 @@ export class StateTimeoutBehavior extends Behavior<{
   protected startSubscriptions() {
     //
     this.getType(BehaviorTypes.STATE).stateSet(true);
+
+    const remainingDuration = this.get(this.type.RemainingDuration);
 
     // HOLD POSITION
     {
@@ -63,13 +65,14 @@ export class StateTimeoutBehavior extends Behavior<{
           `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
         );
 
-        chara.setValue(newValue);
+        remainingDuration.setValue(newValue);
+        chara.setValue(false);
       });
     }
 
     // REMAINING DURATION
     {
-      const chara = this.get(this.type.RemainingDuration);
+      const chara = remainingDuration;
 
       chara.onChange((newValue) => {
         this.log(
