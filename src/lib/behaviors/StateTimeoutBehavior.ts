@@ -122,7 +122,7 @@ export class StateTimeoutBehavior extends Behavior<{
                   LogLevel.INFO,
                   `RemainingDuration HOLD POSITION IS TRUE, RESETTING TIMER`,
                 );
-                holdPosition.setValue(false);
+
                 setTimeout(() => {
                   stateChara.setValue(false);
 
@@ -163,6 +163,10 @@ export class StateTimeoutBehavior extends Behavior<{
           break;
         }
       }
+
+      if (holdPosition.value === true) {
+        holdPosition.setValue(false);
+      }
     });
 
     // HOLD POSITION
@@ -176,16 +180,6 @@ export class StateTimeoutBehavior extends Behavior<{
           newValue,
         );
 
-        if (newValue === true) {
-          this.log(
-            LogLevel.INFO,
-            `${this.logName} | ${chara.name} | ${this.service.params.name} *->* changed to`,
-            newValue,
-          );
-
-          clearInterval(this.timerId);
-          this.timerId = undefined;
-        }
         // remainingDuration.setValue(newValue);
         holdPosition.setValue(newValue);
       });
