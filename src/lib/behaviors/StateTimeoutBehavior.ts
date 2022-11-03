@@ -45,7 +45,7 @@ export class StateTimeoutBehavior extends Behavior<{
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
         [this.type.RemainingDuration, 1000],
-        [this.type.SetDuration, 0],
+        [this.type.SetDuration, null],
       ]),
     );
     this.startSubscriptions().then(() => {
@@ -72,28 +72,28 @@ export class StateTimeoutBehavior extends Behavior<{
     {
       const chara = holdPosition;
 
-      chara.onChange((newValue) => {
+      holdPosition.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} HOLD ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} | ${chara.name} | ${this.service.params.name} *->* changed to`,
+          newValue,
         );
 
-        remainingDuration.setValue(newValue);
-        chara.setValue(false);
+        // remainingDuration.setValue(newValue);
+        holdPosition.setValue(false);
       });
     }
 
     {
       const chara = setDuration;
 
-      chara.onChange((newValue) => {
+      setDuration.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} HOLD ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
         );
 
-        remainingDuration.setValue(newValue);
-        chara.setValue(false);
+        setDuration.setValue(newValue);
       });
     }
 
@@ -101,12 +101,12 @@ export class StateTimeoutBehavior extends Behavior<{
     {
       const chara = remainingDuration;
 
-      chara.onChange((newValue) => {
+      remainingDuration.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} REMAINING ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
         );
-        chara.setValue(newValue);
+        remainingDuration.setValue(newValue);
       });
     }
   }
