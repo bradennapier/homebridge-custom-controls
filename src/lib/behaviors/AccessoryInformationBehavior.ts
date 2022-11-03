@@ -29,12 +29,8 @@ export class AccessoryInformationBehavior extends Behavior<{
     ...Object.values(this.type),
   ]);
 
-  protected get $state() {
-    return this.State;
-  }
-
   public get state() {
-    return this.$state as Readonly<typeof this.$state>;
+    return this.State as Readonly<typeof this.State>;
   }
 
   constructor(...args: [Service, AccessoryInformation]) {

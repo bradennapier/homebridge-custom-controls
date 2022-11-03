@@ -164,9 +164,7 @@ export class Service<
 
       if (!cachedCharacteristic) {
         this.log.info(
-          `[${
-            this.platform.config.name ?? 'Controls'
-          }] Removing unused characteristic`,
+          `${this.logName} Removing unused characteristic`,
           characteristic.displayName,
         );
 
