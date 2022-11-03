@@ -39,7 +39,7 @@ export class AccessoryInformationBehavior extends Behavior<{
 
   constructor(...args: [Service, AccessoryInformation]) {
     super(...args);
-    this.registerCharacteristics.call(this);
+    this.registerCharacteristics();
     this.startSubscriptions();
   }
 

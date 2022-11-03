@@ -13,7 +13,7 @@ export type BehaviorParams = {
   state?: AnyObj | undefined;
 };
 
-const DependsOnKey = Symbol('DependsOn');
+const DependsOnKey = Symbol.for('hap/Behavior.DependsOn');
 
 export abstract class Behavior<
   O extends Readonly<BehaviorParams> = {
@@ -61,7 +61,7 @@ export abstract class Behavior<
 
   abstract readonly characteristics: Set<CharacteristicWithUUID>;
 
-  protected static readonly [DependsOnKey]: readonly BehaviorTypes[] =
+  protected readonly [DependsOnKey]: readonly BehaviorTypes[] =
     this[DependsOnKey] ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,14 +87,14 @@ export abstract class Behavior<
       this.State.params = this.params;
     }
     if (typeof this.characteristics === 'undefined') {
-      this.log(
-        LogLevel.WARN,
-        'Characteristics? ',
-        this.characteristics,
-        this.UUID,
-      );
       return;
     }
+    this.log(
+      LogLevel.WARN,
+      'Characteristics? ',
+      this.characteristics,
+      this.UUID,
+    );
     this.State.name = this.name ?? this.constructor.name;
     this.characteristics.forEach((characteristic) => {
       this.characteristicMap.set(
