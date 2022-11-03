@@ -4,6 +4,7 @@ import { UUID } from '../decorators/UUID';
 import { Characteristic, type Service } from '../helpers';
 
 import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
+import { forAwaitInterval } from '../utils/promise';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
@@ -54,6 +55,8 @@ export class StateTimeoutBehavior extends Behavior<{
     });
   }
 
+  private timerId: NodeJS.Timeout | undefined = undefined;
+
   protected async startSubscriptions() {
     //
     const stateChara = this.getType(BehaviorTypes.STATE).get(
@@ -64,19 +67,23 @@ export class StateTimeoutBehavior extends Behavior<{
 
     const remainingDuration = this.get(this.type.RemainingDuration);
     const setDuration = this.get(this.type.SetDuration);
+    const holdPosition: Characteristic<boolean> = this.get(
+      this.type.HoldPosition,
+    );
     // this has to match the remainingDuration max
     setDuration.setProps({
       minValue: 0,
       maxValue: 3600,
     });
 
-    stateChara.onChange((newValue) => {
+    stateChara.onChange(async (newValue) => {
       this.log(
         LogLevel.INFO,
         `state changed to ${newValue} (${typeof newValue}) vs ${
           stateChara.controller.props.format
         }`,
       );
+
       switch (newValue) {
         case false:
         case true: {
@@ -85,11 +92,34 @@ export class StateTimeoutBehavior extends Behavior<{
               LogLevel.INFO,
               `Set Duration being used to set Remaining Duration ${setDuration.value}`,
             );
+
+            remainingDuration.setValue(setDuration.value);
+
+            for await (let toValue of forAwaitInterval(
+              1000,
+              setDuration.value as number,
+            )) {
+              if (holdPosition.value === true) {
+                this.log(
+                  LogLevel.INFO,
+                  `RemainingDuration HOLD POSITION IS TRUE, RESETTING`,
+                );
+                remainingDuration.setValue(0);
+                break;
+              }
+              const wasValue = toValue;
+              toValue -= 1;
+              this.log(
+                LogLevel.INFO,
+                `RemainingDuration ${wasValue} -> ${toValue}`,
+              );
+              remainingDuration.setValue(toValue);
+            }
             remainingDuration.setValue(setDuration.value);
           } else {
             this.log(
               LogLevel.INFO,
-              `Remaining Duration reset due to accessory being on`,
+              `Remaining Duration reset due to accessory being on or not having timeout`,
             );
             remainingDuration.setValue(0);
           }
@@ -103,9 +133,6 @@ export class StateTimeoutBehavior extends Behavior<{
       }
     });
 
-    const holdPosition: Characteristic<boolean> = this.get(
-      this.type.HoldPosition,
-    );
     // HOLD POSITION
     {
       const chara = holdPosition;
@@ -117,8 +144,18 @@ export class StateTimeoutBehavior extends Behavior<{
           newValue,
         );
 
+        if (newValue === true) {
+          this.log(
+            LogLevel.INFO,
+            `${this.logName} | ${chara.name} | ${this.service.params.name} *->* changed to`,
+            newValue,
+          );
+
+          clearInterval(this.timerId);
+          this.timerId = undefined;
+        }
         // remainingDuration.setValue(newValue);
-        holdPosition.setValue(newValue);
+        holdPosition.setValue(!newValue);
       });
     }
 
