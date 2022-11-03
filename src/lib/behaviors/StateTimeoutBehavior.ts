@@ -80,18 +80,18 @@ export class StateTimeoutBehavior extends Behavior<{
       switch (newValue) {
         case false:
         case true: {
-          if (newValue) {
-            this.log(
-              LogLevel.INFO,
-              `Remaining Duration reset due to accessory being on`,
-            );
-            remainingDuration.setValue(0);
-          } else if (setDuration.value) {
+          if (newValue && setDuration.value) {
             this.log(
               LogLevel.INFO,
               `Set Duration being used to set Remaining Duration ${setDuration.value}`,
             );
             remainingDuration.setValue(setDuration.value);
+          } else {
+            this.log(
+              LogLevel.INFO,
+              `Remaining Duration reset due to accessory being on`,
+            );
+            remainingDuration.setValue(0);
           }
           break;
         }
