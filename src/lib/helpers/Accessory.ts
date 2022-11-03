@@ -160,6 +160,7 @@ export class Accessory {
     this.services.set(serviceUUID, service);
 
     if (params?.behaviors) {
+      this.log.info('Adding Behaviors: ', params.behaviors);
       params.behaviors.forEach((behavior) => {
         const [ServiceBehavior, params] = Array.isArray(behavior)
           ? behavior
@@ -169,6 +170,8 @@ export class Accessory {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new (ServiceBehavior as any)(service, params);
       });
+    } else {
+      this.log.info('No Behaviors discovered');
     }
 
     new ServiceNameBehavior(service, undefined);

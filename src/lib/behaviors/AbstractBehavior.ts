@@ -87,14 +87,13 @@ export abstract class Behavior<
       this.State.params = this.params;
     }
     if (typeof this.characteristics === 'undefined') {
+      this.log(
+        LogLevel.WARN,
+        `[${this.logName}] No characteristics defined, this behavior won't do anything`,
+      );
       return;
     }
-    this.log(
-      LogLevel.WARN,
-      'Characteristics? ',
-      this.characteristics,
-      this.UUID,
-    );
+
     this.State.name = this.name ?? this.constructor.name;
     this.characteristics.forEach((characteristic) => {
       this.characteristicMap.set(
@@ -106,6 +105,10 @@ export abstract class Behavior<
         ),
       );
     });
+    this.log(
+      LogLevel.INFO,
+      `[${this.logName}] Registered ${this.characteristics.size} characteristics`,
+    );
     this.service.behaviors.byUUID.set(
       this.UUID,
       this as unknown as ServiceBehaviors,
@@ -116,7 +119,7 @@ export abstract class Behavior<
     const value = this.characteristicMap.get(characteristic);
     if (!value) {
       throw new Error(
-        `[Behavior] Characteristic ${characteristic} not found, did you forget to call this.registerCharacteristics() in the constructor?`,
+        `[${this.logName}] [Behavior] Characteristic ${characteristic} not found, did you forget to call this.registerCharacteristics() in the constructor?`,
       );
     }
     return value;
@@ -143,14 +146,15 @@ export abstract class Behavior<
     this.log(
       LogLevel.INFO,
       'Depends? ',
+      this.logName,
       this[DependsOnKey].includes(type),
       type,
-      this[DependsOnKey],
+      this[DependsOnKey].length,
       this.UUID,
     );
     if (!this[DependsOnKey].includes(type)) {
       throw new Error(
-        `${this.logName} may only use getType if it indicates a dependency with @DependsOn([${type}])`,
+        `[${this.name}] ${this.logName} may only use getType if it indicates a dependency with @DependsOn([${type}])`,
       );
     }
 
@@ -162,7 +166,7 @@ export abstract class Behavior<
       if (!this.service.behaviors.types[dependency]) {
         this.log(
           LogLevel.ERROR,
-          `${this.name} depends on ${dependency} but it is not registered`,
+          `${this.logName} depends on ${dependency} but it is not registered`,
         );
       }
     });
@@ -187,11 +191,11 @@ export function DependsOn<B extends readonly BehaviorTypes[]>(types: B) {
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
     constructor.prototype[DependsOnKey] = types;
     constructor[DependsOnKey] = types;
-    console.log(constructor, constructor.prototype);
+    // console.log(constructor, constructor.prototype);
     const value = class DependsOn extends constructor {
       [DependsOnKey] = types;
     };
-    console.log('value: ', value);
+    // console.log('value: ', value);
     return value;
   };
 }
