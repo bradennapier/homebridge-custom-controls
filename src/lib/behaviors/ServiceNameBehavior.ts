@@ -45,7 +45,7 @@ export class ServiceNameBehavior extends Behavior<{
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.Name, 'Switch1'],
         [this.type.ConfiguredName, 'Switch1'],
-        [this.type.CustomCharacteristic, 10],
+        [this.type.CustomCharacteristic, 0],
       ]),
     );
     this.startSubscriptions();
@@ -53,12 +53,15 @@ export class ServiceNameBehavior extends Behavior<{
 
   protected startSubscriptions() {
     this.getAllCharacteristics().forEach((characteristic) => {
-      characteristic.onGet((_context, _state) => {
+      characteristic.onGet((_context, state) => {
         switch (characteristic.controller.UUID) {
           case this.platform.Characteristic.ConfiguredName.UUID:
             return this.service.params.name ?? 'Name Unknown?';
           case this.platform.Characteristic.Name.UUID:
             return this.service.params.name ?? 'Name Unknown?';
+          case this.get(this.type.CustomCharacteristic).controller.UUID:
+            this.log(LogLevel.INFO, 'CustomCharacteristic onGet');
+            return state.value ?? state.oldValue ?? state.initialValue;
         }
       });
     });
