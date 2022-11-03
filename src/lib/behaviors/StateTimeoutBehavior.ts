@@ -173,15 +173,16 @@ export class StateTimeoutBehavior extends Behavior<{
     {
       const chara = holdPosition;
 
-      holdPosition.onChange((newValue) => {
+      holdPosition.onChange((newValue, state) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} | ${chara.name} | ${this.service.params.name} *->* changed to`,
+          `${this.logName} | ${chara.name} | ${this.service.params.name}  *->* changed from ${state.oldValue} to`,
           newValue,
         );
 
         // // remainingDuration.setValue(newValue);
-        // holdPosition.setValue(newValue);
+        holdPosition.setValue(newValue);
+
         if (newValue === true) {
           setTimeout(() => {
             holdPosition.setValue(false);
