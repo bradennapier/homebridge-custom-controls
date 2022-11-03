@@ -4,7 +4,7 @@ import { UUID } from '../decorators/UUID';
 import { Characteristic, type Service } from '../helpers';
 
 import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
-import { forAwaitInterval } from '../utils/promise';
+import { forAwaitInterval, sleep } from '../utils/promise';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
@@ -120,10 +120,13 @@ export class StateTimeoutBehavior extends Behavior<{
               if (holdPosition.value === true) {
                 this.log(
                   LogLevel.INFO,
-                  `RemainingDuration HOLD POSITION IS TRUE, RESETTING`,
+                  `RemainingDuration HOLD POSITION IS TRUE, RESETTING TIMER`,
                 );
-                remainingDuration.setValue(0);
+
                 stateChara.setValue(false);
+                holdPosition.setValue(false);
+                await sleep(100);
+                stateChara.setValue(true);
 
                 break;
               }
