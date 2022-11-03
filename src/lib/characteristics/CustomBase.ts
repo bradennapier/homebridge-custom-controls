@@ -19,7 +19,7 @@ export default function CustomCharacteristic(platform: Platform) {
         format: Formats.UINT16,
         unit: Units.SECONDS,
         minValue: 0,
-        maxValue: 50000,
+        maxValue: 100,
         minStep: 1,
         perms: [
           Perms.PAIRED_READ,
