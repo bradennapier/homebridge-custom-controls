@@ -185,8 +185,10 @@ export class StateTimeoutBehavior extends Behavior<{
 
         if (newValue === true) {
           setTimeout(() => {
-            holdPosition.setValue(false);
-          });
+            if (holdPosition.value === true) {
+              holdPosition.setValue(false);
+            }
+          }, 1000);
         }
       });
     }
