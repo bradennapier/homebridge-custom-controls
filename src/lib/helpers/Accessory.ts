@@ -160,7 +160,10 @@ export class Accessory {
     this.services.set(serviceUUID, service);
 
     if (params?.behaviors) {
-      this.log.info('Adding Behaviors: ', params.behaviors);
+      this.log.info(
+        'Adding Behaviors Count: ',
+        params.behaviors.map((behavior) => String(behavior)),
+      );
       params.behaviors.forEach((behavior) => {
         const [ServiceBehavior, params] = Array.isArray(behavior)
           ? behavior

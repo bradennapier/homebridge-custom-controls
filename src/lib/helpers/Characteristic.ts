@@ -280,7 +280,7 @@ export class Characteristic<V extends CharacteristicValue> {
    * @param properties The new properties of the characteristic.
    */
   public setProps(properties: CharacteristicProps) {
-    console.info(this, this.setProps.name, { properties });
+    this.log.info(this.logName, this.setProps.name, { properties });
     this.controller.setProps(properties);
   }
 
@@ -299,7 +299,7 @@ export class Characteristic<V extends CharacteristicValue> {
   }
 
   public setValue(value: V | null, context?: unknown) {
-    console.info(this, this.setValue.name, { value, context });
+    console.info(this.logName, this.setValue.name, { value, context });
     this.controller.updateValue(
       value,
       Object.assign(

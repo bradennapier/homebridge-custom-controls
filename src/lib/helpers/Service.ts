@@ -48,8 +48,11 @@ export class Service<
   public controller: AccessoryService;
 
   public get logName() {
-    return `[${this.accessory.controller?.displayName}] [${
-      this.controller?.displayName ?? this.params.name ?? this.type.name
+    return `[${this.accessory.controller?.displayName ?? 'UNKNOWN'}] [${
+      this.controller?.displayName ??
+      this.params.name ??
+      this.type.name ??
+      'UNKNOWN'
     }]`;
   }
 
@@ -131,7 +134,7 @@ export class Service<
       this.log.info(
         `${this.logName} Returning Cached Characteristic from useCharacteristic request: `,
         type.UUID,
-        cachedCharacteristic,
+        cachedCharacteristic.logName,
       );
       return cachedCharacteristic;
     }

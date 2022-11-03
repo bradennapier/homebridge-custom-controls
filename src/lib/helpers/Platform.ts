@@ -67,7 +67,7 @@ export class Platform implements DynamicPlatformPlugin {
 
     this.log.debug('Finished initializing platform:', this.config.platform);
 
-    this.log.info(JSON.stringify(config, null, 2));
+    // this.log.info(JSON.stringify(config, null, 2));
 
     if (config.logging === 'verbose') {
       this.log.info(JSON.stringify(config, null, 2));
