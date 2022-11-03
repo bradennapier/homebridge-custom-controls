@@ -1,9 +1,11 @@
 import http from 'http';
+import { URL } from 'url';
+
 import debug from 'debug';
 import {
   API,
   DynamicPlatformPlugin,
-  Logger,
+  type Logger,
   PlatformAccessory,
   PlatformAccessoryEvent,
   PlatformConfig,
@@ -69,7 +71,7 @@ export class Platform implements DynamicPlatformPlugin {
 
     // this.log.info(JSON.stringify(config, null, 2));
 
-    if (config.logging === 'verbose') {
+    if (config.logging !== 'verbose') {
       this.log.info(JSON.stringify(config, null, 2));
     }
 
@@ -139,6 +141,12 @@ export class Platform implements DynamicPlatformPlugin {
   private server: http.Server | undefined = undefined;
 
   public handleRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+    if (!req.url) {
+      this.log.warn('No Url found for handleRequest');
+      return;
+    }
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    this.log.info(`Request: `, url);
     switch (req.url) {
       case '/remove-all': {
         this.log.warn('Removing all accessories due to http request');
@@ -148,6 +156,7 @@ export class Platform implements DynamicPlatformPlugin {
       case '/reset-switch-groups': {
         this.log.warn('Resetting Switch Groups');
         handleSwitchGroups(this);
+
         break;
       }
       case '/hap-debug-on': {

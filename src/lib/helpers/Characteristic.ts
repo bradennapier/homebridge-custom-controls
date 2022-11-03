@@ -104,7 +104,7 @@ export class Characteristic<V extends CharacteristicValue> {
       value: V | null,
       state: typeof this.state,
       change: CharacteristicChange,
-    ) => unknown,
+    ) => unknown | Promise<unknown>,
   ) {
     this.subscribers.onChange.add(callback);
     return () => {
@@ -258,7 +258,7 @@ export class Characteristic<V extends CharacteristicValue> {
 
           this.subscribers.onChange.forEach((callback) => {
             try {
-              callback.call(
+              await callback.call(
                 this,
                 this.state.value as V | null,
                 clonedState,
