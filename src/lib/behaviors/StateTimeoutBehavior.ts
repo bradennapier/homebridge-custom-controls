@@ -22,6 +22,7 @@ export class StateTimeoutBehavior extends Behavior<{
 
   protected readonly type = {
     HoldPosition: this.platform.Characteristic.HoldPosition,
+    SetDuration: this.platform.Characteristic.SetDuration,
     RemainingDuration: this.platform.Characteristic.RemainingDuration,
   } as const;
 
@@ -44,12 +45,15 @@ export class StateTimeoutBehavior extends Behavior<{
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
         [this.type.RemainingDuration, 1000],
+        [this.type.SetDuration, 0],
       ]),
     );
-    this.startSubscriptions();
+    this.startSubscriptions().then(() => {
+      this.log(LogLevel.DEBUG, `startSubscriptions done`);
+    });
   }
 
-  protected startSubscriptions() {
+  protected async startSubscriptions() {
     //
     this.getType(BehaviorTypes.STATE).stateSet(true);
 

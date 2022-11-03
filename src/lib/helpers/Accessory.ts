@@ -178,6 +178,7 @@ export class Accessory {
       this.log.info('No Behaviors discovered');
     }
 
+    // all services add the name behavior to properly set the HomeKit device names in the group
     new ServiceNameBehavior(service, undefined);
 
     return service;

@@ -57,7 +57,7 @@ export class StateBehaviorLock extends StateBehavior<{
       });
     }
     {
-      targetStateChara.onChange((newValue) => {
+      targetStateChara.onChange(async (newValue) => {
         this.log(
           LogLevel.INFO,
           `${this.logName} lock ${targetStateChara.name} ${this.service.params.name} changed to ${newValue}`,
@@ -78,7 +78,7 @@ export class StateBehaviorLock extends StateBehavior<{
     this.log(LogLevel.INFO, `updateTimeout called`);
   }
 
-  public stateSet(desiredState: boolean): void {
+  public async stateSet(desiredState: boolean): Promise<void> {
     // set state
     const CurrentState = this.type.LockCurrentState;
     const TargetState = this.type.LockTargetState;
