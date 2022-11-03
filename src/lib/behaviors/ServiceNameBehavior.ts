@@ -5,7 +5,7 @@ import { Service } from '../helpers';
 import { LogLevel } from 'homebridge';
 import { Behavior } from './AbstractBehavior';
 import { UUID } from '../decorators/UUID';
-// import CustomCharacteristic from '../characteristics/CustomBase';
+import CustomCharacteristic from '../characteristics/CustomBase';
 
 /**
  * Registered on every service, this behavior handles the various characteristics that
@@ -22,7 +22,7 @@ export class ServiceNameBehavior extends Behavior<{
   public readonly type = {
     Name: this.platform.Characteristic.Name,
     ConfiguredName: this.platform.Characteristic.ConfiguredName,
-    // CustomCharacteristic: CustomCharacteristic(this.platform),
+    CustomCharacteristic: CustomCharacteristic(this.platform),
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([
@@ -45,7 +45,7 @@ export class ServiceNameBehavior extends Behavior<{
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.Name, 'Switch1'],
         [this.type.ConfiguredName, 'Switch1'],
-        // [this.type.CustomCharacteristic, 0],
+        [this.type.CustomCharacteristic, 0],
       ]),
     );
     this.startSubscriptions();
@@ -59,9 +59,9 @@ export class ServiceNameBehavior extends Behavior<{
             return this.service.params.name ?? 'Name Unknown?';
           case this.platform.Characteristic.Name.UUID:
             return this.service.params.name ?? 'Name Unknown?';
-          // case this.get(this.type.CustomCharacteristic).controller.UUID:
-          //   this.log(LogLevel.INFO, 'CustomCharacteristic onGet');
-          //   return state.value ?? state.oldValue ?? state.initialValue;
+          case this.get(this.type.CustomCharacteristic).controller.UUID:
+            this.log(LogLevel.INFO, 'CustomCharacteristic onGet');
+            return state.value ?? state.oldValue ?? state.initialValue;
         }
       });
     });
