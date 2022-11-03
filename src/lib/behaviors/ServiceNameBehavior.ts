@@ -53,7 +53,7 @@ export class ServiceNameBehavior extends Behavior<{
 
   protected startSubscriptions() {
     this.getAllCharacteristics().forEach((characteristic) => {
-      characteristic.onGet((_context, _state) => {
+      characteristic.onGet((_context, state) => {
         switch (characteristic.controller.UUID) {
           case this.platform.Characteristic.ConfiguredName.UUID:
             return this.service.params.name ?? 'Name Unknown?';
