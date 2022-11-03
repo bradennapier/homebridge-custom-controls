@@ -280,7 +280,7 @@ export class Characteristic<V extends CharacteristicValue> {
    * Updates the properties of the characteristic.
    * @param properties The new properties of the characteristic.
    */
-  public setProps(properties: CharacteristicProps) {
+  public setProps(properties: Partial<CharacteristicProps>) {
     this.log.info(this.logName, this.setProps.name, { properties });
     this.controller.setProps(properties);
   }

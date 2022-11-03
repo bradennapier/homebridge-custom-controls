@@ -1,6 +1,6 @@
-import { LogLevel } from 'homebridge';
+import { LogLevel, Formats, Perms } from 'homebridge';
 import { UUID } from '../decorators/UUID';
-import { type Service } from '../helpers';
+import { Characteristic, type Service } from '../helpers';
 
 import type { CharacteristicWithUUID } from '../types';
 import { DependsOn, Behavior } from './AbstractBehavior';
@@ -58,10 +58,33 @@ export class StateTimeoutBehavior extends Behavior<{
     this.getType(BehaviorTypes.STATE).stateSet(true);
 
     const remainingDuration = this.get(this.type.RemainingDuration);
+    const setDuration = this.get(this.type.SetDuration);
+    // this has to match the remainingDuration max
+    setDuration.setProps({
+      minValue: 0,
+      maxValue: 3600,
+    });
 
+    const holdPosition: Characteristic<boolean> = this.get(
+      this.type.HoldPosition,
+    );
     // HOLD POSITION
     {
-      const chara = this.get(this.type.HoldPosition);
+      const chara = holdPosition;
+
+      chara.onChange((newValue) => {
+        this.log(
+          LogLevel.INFO,
+          `${this.logName} HOLD ${this.service.params.name} changed to ${newValue}`,
+        );
+
+        remainingDuration.setValue(newValue);
+        chara.setValue(false);
+      });
+    }
+
+    {
+      const chara = setDuration;
 
       chara.onChange((newValue) => {
         this.log(

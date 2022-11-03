@@ -2,6 +2,7 @@ import { LogLevel } from 'homebridge';
 import { UUID } from '../../decorators/UUID';
 import type { Service } from '../../helpers';
 import type { CharacteristicWithUUID } from '../../types';
+import { sleep } from '../../utils/promise';
 
 import StateBehavior from './AbstractStateBehavior';
 
@@ -86,6 +87,18 @@ export class StateBehaviorLock extends StateBehavior<{
     this.get(TargetState).setValue(
       desiredState ? TargetState.SECURED : TargetState.UNSECURED,
     );
+
+    // for await (const startTime of forAwaitInterval(
+    //   1000,
+    //   Date.now()
+    // )) {
+    //   this.get(CurrentState).setValue(
+    //     desiredState ? CurrentState.SECURED : CurrentState.UNSECURED,
+    //   );
+    // }
+
+    await sleep(100);
+
     this.get(CurrentState).setValue(
       desiredState ? CurrentState.SECURED : CurrentState.UNSECURED,
     );
