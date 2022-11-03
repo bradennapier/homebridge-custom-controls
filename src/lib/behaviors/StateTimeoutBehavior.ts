@@ -62,7 +62,7 @@ export class StateTimeoutBehavior extends Behavior<{
       chara.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} HOLD ${this.service.params.name} changed to ${newValue}`,
         );
 
         remainingDuration.setValue(newValue);
@@ -77,7 +77,7 @@ export class StateTimeoutBehavior extends Behavior<{
       chara.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} REMAINING ${this.service.params.name} changed to ${newValue}`,
         );
         chara.setValue(newValue);
       });
