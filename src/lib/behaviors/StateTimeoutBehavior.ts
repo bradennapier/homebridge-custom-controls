@@ -95,27 +95,43 @@ export class StateTimeoutBehavior extends Behavior<{
 
             remainingDuration.setValue(setDuration.value);
 
-            for await (let toValue of forAwaitInterval(
-              1000,
-              setDuration.value as number,
-            )) {
+            for await (const startTime of forAwaitInterval(1000, Date.now())) {
+              const setDurationValue = setDuration.value;
+
+              if (stateChara.value === false) {
+                this.log(LogLevel.INFO, `RemainingDuration OFF , cancel timer`);
+                break;
+              }
+
+              if (setDurationValue === 0) {
+                this.log(
+                  LogLevel.INFO,
+                  `RemainingDuration SET DURATION SET TO 0 , cancel timer`,
+                );
+                stateChara.setValue(false);
+                break;
+              }
+
               if (holdPosition.value === true) {
                 this.log(
                   LogLevel.INFO,
                   `RemainingDuration HOLD POSITION IS TRUE, RESETTING`,
                 );
-                remainingDuration.setValue(0);
+                stateChara.setValue(false);
+
                 break;
               }
-              const wasValue = toValue;
-              toValue -= 1;
+
+              const now = Date.now();
+              const elapsed = Math.round((now - startTime) / 1000);
+              const remaining = setDurationValue - elapsed;
+
               this.log(
                 LogLevel.INFO,
-                `RemainingDuration ${wasValue} -> ${toValue}`,
+                `RemainingDuration ${setDurationValue} duration ${elapsed}s elapsed -> ${remaining}s remaining`,
               );
-              remainingDuration.setValue(toValue);
+              remainingDuration.setValue(remaining);
             }
-            remainingDuration.setValue(setDuration.value);
           } else {
             this.log(
               LogLevel.INFO,
