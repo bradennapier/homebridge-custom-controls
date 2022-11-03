@@ -43,7 +43,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
         LogLevel.INFO,
         `switch ${this.service.params.name} changed to ${newValue}`,
       );
-      this.updateTimeout();
+      this.stateSet(newValue);
     });
   }
 

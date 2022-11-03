@@ -53,20 +53,32 @@ export class StateTimeoutBehavior extends Behavior<{
     //
     this.getType(BehaviorTypes.STATE).stateSet(true);
 
-    this.get(this.type.HoldPosition).onChange((newValue) => {
-      this.log(
-        LogLevel.INFO,
-        `holdPosition ${this.service.params.name} changed to ${newValue}`,
-      );
-      this.updateTimeout();
-    });
+    // HOLD POSITION
+    {
+      const chara = this.get(this.type.HoldPosition);
 
-    this.get(this.type.HoldPosition).onChange((newValue) => {
-      this.log(
-        LogLevel.INFO,
-        `HOLD POSITION ${this.service.params.name} changed to ${newValue}`,
-      );
-    });
+      chara.onChange((newValue) => {
+        this.log(
+          LogLevel.INFO,
+          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
+        );
+
+        chara.setValue(newValue);
+      });
+    }
+
+    // REMAINING DURATION
+    {
+      const chara = this.get(this.type.RemainingDuration);
+
+      chara.onChange((newValue) => {
+        this.log(
+          LogLevel.INFO,
+          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
+        );
+        chara.setValue(newValue);
+      });
+    }
   }
 
   private updateTimeout() {
