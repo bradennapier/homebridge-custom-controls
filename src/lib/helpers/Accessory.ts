@@ -162,7 +162,8 @@ export class Accessory {
     if (params?.behaviors) {
       this.log.info(
         'Adding Behaviors Count: ',
-        params.behaviors.map((behavior) => String(behavior)),
+        // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+        params.behaviors.map((behavior) => (behavior as any as Function).name),
       );
       params.behaviors.forEach((behavior) => {
         const [ServiceBehavior, params] = Array.isArray(behavior)
