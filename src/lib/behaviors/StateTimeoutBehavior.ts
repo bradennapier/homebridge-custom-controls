@@ -1,8 +1,9 @@
 import { LogLevel } from 'homebridge';
+
 import { UUID } from '../decorators/UUID';
 import { Characteristic, type Service } from '../helpers';
 
-import type { CharacteristicWithUUID } from '../types';
+import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
@@ -20,7 +21,7 @@ export class StateTimeoutBehavior extends Behavior<{
 }> {
   public readonly name = this.constructor.name;
 
-  protected readonly type = {
+  public readonly type = {
     HoldPosition: this.platform.Characteristic.HoldPosition,
     SetDuration: this.platform.Characteristic.SetDuration,
     RemainingDuration: this.platform.Characteristic.RemainingDuration,
@@ -44,7 +45,7 @@ export class StateTimeoutBehavior extends Behavior<{
     super.registerCharacteristics(
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
-        [this.type.RemainingDuration, 1000],
+        [this.type.RemainingDuration, 0],
         [this.type.SetDuration, null],
       ]),
     );
@@ -55,7 +56,11 @@ export class StateTimeoutBehavior extends Behavior<{
 
   protected async startSubscriptions() {
     //
-    this.getType(BehaviorTypes.STATE).stateSet(true);
+    const stateChara = this.getType(BehaviorTypes.STATE).get(
+      (type) =>
+        (type.On as UUIDCharacteristics<'On'>) ??
+        (type.LockTargetState as UUIDCharacteristics<'LockTargetState'>),
+    );
 
     const remainingDuration = this.get(this.type.RemainingDuration);
     const setDuration = this.get(this.type.SetDuration);
@@ -63,6 +68,39 @@ export class StateTimeoutBehavior extends Behavior<{
     setDuration.setProps({
       minValue: 0,
       maxValue: 3600,
+    });
+
+    stateChara.onChange((newValue) => {
+      this.log(
+        LogLevel.INFO,
+        `state changed to ${newValue} (${typeof newValue}) vs ${
+          stateChara.controller.props.format
+        }`,
+      );
+      switch (newValue) {
+        case false:
+        case true: {
+          if (newValue) {
+            this.log(
+              LogLevel.INFO,
+              `Remaining Duration reset due to accessory being on`,
+            );
+            remainingDuration.setValue(0);
+          } else if (setDuration.value) {
+            this.log(
+              LogLevel.INFO,
+              `Set Duration being used to set Remaining Duration ${setDuration.value}`,
+            );
+            remainingDuration.setValue(setDuration.value);
+          }
+          break;
+        }
+        case this.platform.hap.Characteristic.LockTargetState.SECURED:
+        case this.platform.hap.Characteristic.LockTargetState.UNSECURED: {
+          this.log(LogLevel.INFO, `Timeout Behavior for TargetLockState`);
+          break;
+        }
+      }
     });
 
     const holdPosition: Characteristic<boolean> = this.get(
@@ -80,7 +118,7 @@ export class StateTimeoutBehavior extends Behavior<{
         );
 
         // remainingDuration.setValue(newValue);
-        holdPosition.setValue(false);
+        holdPosition.setValue(newValue);
       });
     }
 

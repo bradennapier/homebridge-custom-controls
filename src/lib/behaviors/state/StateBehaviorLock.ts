@@ -17,9 +17,9 @@ export class StateBehaviorLock extends StateBehavior<{
 }> {
   public readonly name = this.constructor.name;
 
-  private readonly type = {
+  public readonly type = {
     LockCurrentState: this.platform.Characteristic.LockCurrentState,
-    LockTargetState: this.platform.Characteristic.LockTargetState,
+    On: this.platform.Characteristic.LockTargetState,
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([
@@ -39,7 +39,7 @@ export class StateBehaviorLock extends StateBehavior<{
     super.registerCharacteristics(
       new Map([
         [this.type.LockCurrentState, this.type.LockCurrentState.SECURED],
-        [this.type.LockTargetState, this.type.LockTargetState.SECURED],
+        [this.type.On, this.type.On.SECURED],
       ]),
     );
     this.startSubscriptions();
@@ -47,7 +47,7 @@ export class StateBehaviorLock extends StateBehavior<{
 
   private startSubscriptions() {
     const currentStateChara = this.get(this.type.LockCurrentState);
-    const targetStateChara = this.get(this.type.LockTargetState);
+    const targetStateChara = this.get(this.type.On);
     {
       currentStateChara.onChange((newValue) => {
         this.log(
@@ -66,8 +66,10 @@ export class StateBehaviorLock extends StateBehavior<{
 
         targetStateChara.setValue(newValue);
 
+        await sleep(100);
+
         currentStateChara.setValue(
-          newValue === this.type.LockTargetState.SECURED
+          newValue === this.type.On.SECURED
             ? this.type.LockCurrentState.SECURED
             : this.type.LockCurrentState.UNSECURED,
         );
@@ -82,7 +84,7 @@ export class StateBehaviorLock extends StateBehavior<{
   public async stateSet(desiredState: boolean): Promise<void> {
     // set state
     const CurrentState = this.type.LockCurrentState;
-    const TargetState = this.type.LockTargetState;
+    const TargetState = this.type.On;
 
     this.get(TargetState).setValue(
       desiredState ? TargetState.SECURED : TargetState.UNSECURED,

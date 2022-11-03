@@ -7,15 +7,15 @@ import { CUSTOM_INFO_UUID } from '../characteristics';
 import type { Platform } from '../helpers/Platform';
 import type { CharacteristicWithUUID } from '../types';
 
-export default function CustomCharacteristic(platform: Platform) {
+export default function TimeoutDurationCharacteristic(platform: Platform) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Characteristic = platform.hap.Characteristic;
 
-  class CustomCharacteristicClass extends Characteristic {
+  class TimeoutDuration extends Characteristic {
     static UUID: string = CUSTOM_INFO_UUID;
 
     constructor() {
-      super('Custom Info 2', CUSTOM_INFO_UUID, {
+      super('', CUSTOM_INFO_UUID, {
         format: Formats.UINT16,
         unit: Units.SECONDS,
         minValue: 0,
@@ -32,5 +32,5 @@ export default function CustomCharacteristic(platform: Platform) {
     }
   }
 
-  return CustomCharacteristicClass as CharacteristicWithUUID;
+  return TimeoutDuration as CharacteristicWithUUID;
 }

@@ -19,7 +19,7 @@ export class ServiceNameBehavior extends Behavior<{
 }> {
   public readonly name = this.constructor.name;
 
-  protected readonly type = {
+  public readonly type = {
     Name: this.platform.Characteristic.Name,
     ConfiguredName: this.platform.Characteristic.ConfiguredName,
     // CustomCharacteristic: CustomCharacteristic(this.platform),

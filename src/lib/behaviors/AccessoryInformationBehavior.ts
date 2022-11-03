@@ -17,7 +17,7 @@ export class AccessoryInformationBehavior extends Behavior<{
 }> {
   public readonly name = this.constructor.name;
 
-  protected readonly type = {
+  public readonly type = {
     Manufacturer: this.platform.Characteristic.Manufacturer,
     Model: this.platform.Characteristic.Model,
     SerialNumber: this.platform.Characteristic.SerialNumber,

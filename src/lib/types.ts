@@ -3,7 +3,32 @@ import type {
   Service as AccessoryService,
   WithUUID,
 } from 'homebridge';
+
 import type { Service } from './helpers';
+
+type UUIDCharacteristicsMapped = {
+  [K in keyof typeof ServiceCharacteristic]: typeof ServiceCharacteristic[K] extends WithUUID<
+    new () => ServiceCharacteristic
+  >
+    ? [K, typeof ServiceCharacteristic[K]]
+    : never;
+}[keyof typeof ServiceCharacteristic];
+
+export type UUIDCharacteristicMap = {
+  [K in UUIDCharacteristicsMapped as K[0]]: K[1];
+};
+
+export type UUIDCharacteristics<
+  K extends keyof UUIDCharacteristicMap | Array<keyof UUIDCharacteristicMap>,
+> = K extends keyof UUIDCharacteristicMap
+  ? UUIDCharacteristicMap[K]
+  : K extends Array<infer U>
+  ? U extends keyof UUIDCharacteristicMap
+    ? {
+        [K in U]: UUIDCharacteristicMap[K];
+      }
+    : never
+  : never;
 
 export type CharacteristicWithUUID = {
   [K in keyof typeof ServiceCharacteristic]: typeof ServiceCharacteristic[K] extends WithUUID<

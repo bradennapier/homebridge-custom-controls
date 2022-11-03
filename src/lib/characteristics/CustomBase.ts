@@ -9,7 +9,7 @@ import type { CharacteristicWithUUID } from '../types';
 
 export default function CustomCharacteristic(platform: Platform) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Characteristic: any = platform.hap.Characteristic;
+  const Characteristic = platform.hap.Characteristic;
 
   class CustomCharacteristicClass extends Characteristic {
     static UUID: string = CUSTOM_INFO_UUID;

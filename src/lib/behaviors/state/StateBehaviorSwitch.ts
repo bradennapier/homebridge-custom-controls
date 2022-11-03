@@ -13,7 +13,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
 }> {
   public readonly name = this.constructor.name;
 
-  protected readonly type = {
+  public readonly type = {
     On: this.platform.Characteristic.On,
   } as const;
 
@@ -41,9 +41,13 @@ export class StateBehaviorSwitch extends StateBehavior<{
     onChar.onChange((newValue) => {
       this.log(
         LogLevel.INFO,
-        `switch ${this.service.params.name} changed to ${newValue}`,
+        `switch ${
+          this.service.params.name
+        } changed to ${newValue} (${typeof newValue})`,
       );
-      this.stateSet(newValue);
+      if (typeof newValue === 'boolean') {
+        this.stateSet(newValue);
+      }
     });
   }
 

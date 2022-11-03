@@ -3,9 +3,10 @@ import type {
   CharacteristicWithUUID,
   ServiceBehaviors,
 } from '../types';
-import type { Characteristic, Service } from '../helpers';
+import { Characteristic, Service } from '../helpers';
 import { BehaviorTypes } from './types';
 import { LogLevel } from 'homebridge';
+
 import { getUUID } from '../decorators/UUID';
 
 export type BehaviorParams = {
@@ -34,6 +35,10 @@ export abstract class Behavior<
   readonly UUID: string = getUUID(this.constructor);
 
   abstract readonly name: string;
+
+  abstract readonly type: {
+    readonly [key: string]: CharacteristicWithUUID;
+  };
 
   constructor(
     public readonly service: Service,
@@ -115,13 +120,21 @@ export abstract class Behavior<
     );
   }
 
-  protected get<C extends CharacteristicWithUUID>(characteristic: C) {
+  public get<C extends CharacteristicWithUUID>(
+    $characteristic: C | ((types: this['type']) => C),
+  ) {
+    const characteristic =
+      $characteristic instanceof this.platform.hap.Characteristic
+        ? ($characteristic as C)
+        : ($characteristic as (types: this['type']) => C)(this.type);
+
     const value = this.characteristicMap.get(characteristic);
     if (!value) {
       throw new Error(
         `[${this.logName}] [Behavior] Characteristic ${characteristic} not found, did you forget to call this.registerCharacteristics() in the constructor?`,
       );
     }
+
     return value;
   }
 
@@ -139,7 +152,7 @@ export abstract class Behavior<
    *  class MyBehavior extends Behavior<...> {
    *  }}
    */
-  protected getType<C extends BehaviorTypes>(
+  public getType<C extends BehaviorTypes>(
     type: C,
   ): NonNullable<Service['behaviors']['types'][C]> {
     const behavior = this.service.behaviors.types[type];
