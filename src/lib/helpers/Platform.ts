@@ -148,30 +148,33 @@ export class Platform implements DynamicPlatformPlugin {
     }
     const url = new URL(req.url, `http://${req.headers.host}`);
     this.log.info(`Request: `, url);
-    this.log.info('Parts: ', url.pathname.split(path.sep));
-    switch (req.url) {
-      case '/remove-all': {
+    const urlPath = url.pathname.split(path.sep);
+    urlPath.shift();
+
+    this.log.info('Parts: ', urlPath);
+    switch (urlPath[0]) {
+      case 'remove-all': {
         this.log.warn('Removing all accessories due to http request');
         this.removeAllAccessories();
         break;
       }
-      case '/reset-switch-groups': {
+      case 'reset-switch-groups': {
         this.log.warn('Resetting Switch Groups');
         handleSwitchGroups(this);
 
         break;
       }
-      case '/hap-debug-on': {
+      case 'hap-debug-on': {
         this.log.warn('Starting Debug Logging for HAP-NodeJS');
         debug.enable('HAP-NodeJS:*');
         break;
       }
-      case '/hap-debug-off': {
+      case 'hap-debug-off': {
         this.log.warn('Stopping Debug Logging for HAP-NodeJS');
         debug.disable();
         break;
       }
-      case '/context': {
+      case 'context': {
         this.log.info('Context Getter');
         res.setHeader('Content-Type', 'application/json');
         res.end(
