@@ -256,7 +256,7 @@ export class Characteristic<V extends CharacteristicValue> {
         if (this.subscribers.onChange.size) {
           const clonedState = structuredClone(this.state);
 
-          this.subscribers.onChange.forEach((callback) => {
+          this.subscribers.onChange.forEach(async (callback) => {
             try {
               await callback.call(
                 this,
