@@ -180,11 +180,11 @@ export class StateTimeoutBehavior extends Behavior<{
           newValue,
         );
 
-        // remainingDuration.setValue(newValue);
-        holdPosition.setValue(newValue);
+        // // remainingDuration.setValue(newValue);
+        // holdPosition.setValue(newValue);
         if (newValue === true) {
           setTimeout(() => {
-            holdPosition.setValue(null);
+            holdPosition.setValue(false);
           });
         }
       });
