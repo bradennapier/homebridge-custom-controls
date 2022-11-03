@@ -65,7 +65,7 @@ export class Platform implements DynamicPlatformPlugin {
   ) {
     this.config = config as Config;
 
-    this.log.debug('Finished initializing platform:', this.config.name);
+    this.log.debug('Finished initializing platform:', this.config.platform);
 
     this.log.info(JSON.stringify(config, null, 2));
 

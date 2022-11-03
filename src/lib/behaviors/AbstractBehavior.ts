@@ -86,6 +86,15 @@ export abstract class Behavior<
     if (this.params) {
       this.State.params = this.params;
     }
+    if (typeof this.characteristics === 'undefined') {
+      this.log(
+        LogLevel.WARN,
+        'Characteristics? ',
+        this.characteristics,
+        this.UUID,
+      );
+      return;
+    }
     this.State.name = this.name ?? this.constructor.name;
     this.characteristics.forEach((characteristic) => {
       this.characteristicMap.set(
