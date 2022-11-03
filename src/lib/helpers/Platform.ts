@@ -1,5 +1,6 @@
 import http from 'http';
 import { URL } from 'url';
+import path from 'path';
 
 import debug from 'debug';
 import {
@@ -147,6 +148,7 @@ export class Platform implements DynamicPlatformPlugin {
     }
     const url = new URL(req.url, `http://${req.headers.host}`);
     this.log.info(`Request: `, url);
+    this.log.info('Parts: ', url.pathname.split(path.sep));
     switch (req.url) {
       case '/remove-all': {
         this.log.warn('Removing all accessories due to http request');
@@ -170,6 +172,7 @@ export class Platform implements DynamicPlatformPlugin {
         break;
       }
       case '/context': {
+        this.log.info('Context Getter');
         res.setHeader('Content-Type', 'application/json');
         res.end(
           JSON.stringify(
