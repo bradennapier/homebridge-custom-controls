@@ -1,4 +1,4 @@
-import { LogLevel, Formats, Perms } from 'homebridge';
+import { LogLevel } from 'homebridge';
 import { UUID } from '../decorators/UUID';
 import { Characteristic, type Service } from '../helpers';
 
