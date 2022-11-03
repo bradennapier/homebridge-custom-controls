@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import type { AccessoryInformation, CharacteristicWithUUID } from '../types';
 import { Service } from '../helpers';
 import { PACKAGE_VERSION } from '../../settings';
@@ -53,7 +52,7 @@ export class AccessoryInformationBehavior extends Behavior<{
           case this.platform.Characteristic.Model.UUID:
             return this.service.accessory.params.subType;
           case this.platform.Characteristic.SerialNumber.UUID:
-            return this.service.accessory.uuid + nanoid();
+            return this.service.accessory.uuid;
           case this.platform.Characteristic.FirmwareRevision.UUID:
             return PACKAGE_VERSION;
           case this.platform.Characteristic.HardwareRevision.UUID:
