@@ -4,7 +4,7 @@ import { UUID } from '../decorators/UUID';
 import { Characteristic, type Service } from '../helpers';
 
 import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
-import { forAwaitInterval, sleep } from '../utils/promise';
+import { forAwaitInterval } from '../utils/promise';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
@@ -187,7 +187,7 @@ export class StateTimeoutBehavior extends Behavior<{
           this.timerId = undefined;
         }
         // remainingDuration.setValue(newValue);
-        holdPosition.setValue(!newValue);
+        holdPosition.setValue(newValue);
       });
     }
 
