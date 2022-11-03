@@ -13,6 +13,14 @@ export type CharacteristicWithUUID = {
     : never;
 }[keyof typeof ServiceCharacteristic];
 
+// export type CharacteristicWithoutUUID = {
+//   [K in keyof typeof ServiceCharacteristic]: typeof ServiceCharacteristic[K] extends WithUUID<
+//     new () => ServiceCharacteristic
+//   >
+//     ?never
+//     : typeof ServiceCharacteristic[K];
+// }[keyof typeof ServiceCharacteristic];
+
 export type ServiceWithUUID = {
   [K in keyof typeof AccessoryService]: typeof AccessoryService[K] extends WithUUID<
     new () => AccessoryService
@@ -21,7 +29,15 @@ export type ServiceWithUUID = {
     : never;
 }[keyof typeof AccessoryService];
 
-const SWITCH_SENSORS = [
+// export type ServiceWithOutUUID = {
+//   [K in keyof typeof AccessoryService]: typeof AccessoryService[K] extends WithUUID<
+//     new () => AccessoryService
+//   >
+//     ? never
+//     : typeof AccessoryService[K];
+// }[keyof typeof AccessoryService];
+
+export const SWITCH_SENSORS = [
   'anyChanges',
   'anyChangesToOn',
   'anyChangesToOff',
@@ -33,9 +49,11 @@ const SWITCH_SENSORS = [
   'majorityOff',
 ] as const;
 
+export const SPECIAL_SENSOR_TYPES = ['systemStartup'] as const;
+
 export type SwitchSensorTypes = typeof SWITCH_SENSORS[number];
 
-export type SpecialSensorTypes = 'systemStartup';
+export type SpecialSensorTypes = typeof SPECIAL_SENSOR_TYPES[number];
 
 export type SwitchConfig = {
   name: string;

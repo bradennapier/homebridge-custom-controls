@@ -1,7 +1,10 @@
+import structuredClone from '@ungap/structured-clone';
+
 import type { AccessoryInformation, CharacteristicWithUUID } from '../types';
 import { Service } from '../helpers';
 import { LogLevel } from 'homebridge';
-import { Behavior, UUID } from './AbstractBehavior';
+import { Behavior } from './AbstractBehavior';
+import { UUID } from '../decorators/UUID';
 
 /**
  * Registered on every service, this behavior handles the various characteristics that
@@ -13,38 +16,38 @@ export class ServiceNameBehavior extends Behavior<{
   params: AccessoryInformation;
   // state: {}
 }> {
-  public readonly UUID: string = this.UUID;
   public readonly name = this.constructor.name;
 
-  readonly #type = {
+  protected readonly type = {
     Name: this.platform.Characteristic.Name,
     ConfiguredName: this.platform.Characteristic.ConfiguredName,
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([
-    ...Object.values(this.#type),
+    ...Object.values(this.type),
   ]);
 
-  get #state() {
+  get $state() {
     return this.State;
   }
 
   get state() {
-    return this.#state as Readonly<typeof this.state>;
+    const state = structuredClone(this.$state);
+    return Object.freeze(state);
   }
 
   constructor(...args: [Service, undefined]) {
     super(...args);
     this.registerCharacteristics(
       new Map([
-        [this.#type.Name, 'Switch1'],
-        [this.#type.ConfiguredName, 'Switch1'],
+        [this.type.Name, 'Switch1'],
+        [this.type.ConfiguredName, 'Switch1'],
       ]),
     );
-    this.#startSubscriptions();
+    this.startSubscriptions();
   }
 
-  #startSubscriptions() {
+  protected startSubscriptions() {
     this.getAllCharacteristics().forEach((characteristic) => {
       characteristic.onGet((_context, _state) => {
         switch (characteristic.controller.UUID) {
@@ -56,8 +59,8 @@ export class ServiceNameBehavior extends Behavior<{
       });
     });
 
-    const configuredName = this.get(this.#type.ConfiguredName);
-    const nameProp = this.get(this.#type.Name);
+    const configuredName = this.get(this.type.ConfiguredName);
+    const nameProp = this.get(this.type.Name);
 
     configuredName.onChange((value, context) => {
       this.log(
@@ -67,6 +70,7 @@ export class ServiceNameBehavior extends Behavior<{
         context,
       );
     });
+
     // configuredName.state.setByUser !== true
     if (configuredName.state.updatedBy !== 'user') {
       setTimeout(() => {
@@ -80,7 +84,7 @@ export class ServiceNameBehavior extends Behavior<{
         configuredName.controller.setValue(this.service.params.name);
         this.log(
           LogLevel.INFO,
-          'COnfigured name is now: ',
+          'Configured Name is now: ',
           configuredName.value,
           configuredName.state,
         );

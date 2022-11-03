@@ -31,12 +31,17 @@ export class Accessory {
 
   // this is used to track restored cached accessories
   public readonly services = new Map<string, Service>();
+  /**
+   * The generated UUID of the accessory at runtime.
+   */
+  public readonly uuid: string;
 
   constructor(
     public platform: Platform,
     public params: AccessoryCreationParams,
   ) {
-    const { uuid } = this;
+    const uuid = this.generateUUID();
+    this.uuid = uuid;
 
     const cachedAccessory = this.platform.accessories.get(uuid);
 
@@ -71,7 +76,7 @@ export class Accessory {
     this.platform.configuredAccessories.add(uuid);
   }
 
-  public get uuid() {
+  private generateUUID() {
     return this.api.hap.uuid.generate(
       this.params.subType ?? `${this.params.name}-${this.controller.UUID}`,
     );

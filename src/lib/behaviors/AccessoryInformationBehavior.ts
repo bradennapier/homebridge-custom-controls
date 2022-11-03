@@ -1,8 +1,10 @@
+import { nanoid } from 'nanoid';
 import type { AccessoryInformation, CharacteristicWithUUID } from '../types';
 import { Service } from '../helpers';
 import { PACKAGE_VERSION } from '../../settings';
 import { LogLevel } from 'homebridge';
-import { Behavior, UUID } from './AbstractBehavior';
+import { Behavior } from './AbstractBehavior';
+import { UUID } from '../decorators/UUID';
 
 /**
  * Registered on every service, this behavior handles the various characteristics that
@@ -14,10 +16,9 @@ export class AccessoryInformationBehavior extends Behavior<{
   params: AccessoryInformation;
   // state: {}
 }> {
-  public readonly UUID: string = this.UUID;
   public readonly name = this.constructor.name;
 
-  readonly #type = {
+  protected readonly type = {
     Manufacturer: this.platform.Characteristic.Manufacturer,
     Model: this.platform.Characteristic.Model,
     SerialNumber: this.platform.Characteristic.SerialNumber,
@@ -26,24 +27,24 @@ export class AccessoryInformationBehavior extends Behavior<{
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([
-    ...Object.values(this.#type),
+    ...Object.values(this.type),
   ]);
 
-  get #state() {
+  protected get $state() {
     return this.State;
   }
 
-  get state() {
-    return this.#state as Readonly<typeof this.state>;
+  public get state() {
+    return this.$state as Readonly<typeof this.$state>;
   }
 
   constructor(...args: [Service, AccessoryInformation]) {
     super(...args);
     this.registerCharacteristics();
-    this.#startSubscriptions();
+    this.startSubscriptions();
   }
 
-  #startSubscriptions() {
+  protected startSubscriptions() {
     this.getAllCharacteristics().forEach((characteristic) => {
       characteristic.onGet((_context, _state) => {
         switch (characteristic.controller.UUID) {
@@ -52,7 +53,7 @@ export class AccessoryInformationBehavior extends Behavior<{
           case this.platform.Characteristic.Model.UUID:
             return this.service.accessory.params.subType;
           case this.platform.Characteristic.SerialNumber.UUID:
-            return this.service.accessory.uuid;
+            return this.service.accessory.uuid + nanoid();
           case this.platform.Characteristic.FirmwareRevision.UUID:
             return PACKAGE_VERSION;
           case this.platform.Characteristic.HardwareRevision.UUID:

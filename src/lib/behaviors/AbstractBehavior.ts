@@ -6,6 +6,7 @@ import type {
 import type { Characteristic, Service } from '../helpers';
 import { BehaviorTypes } from './types';
 import { LogLevel } from 'homebridge';
+import { getUUID } from '../decorators/UUID';
 
 export type BehaviorParams = {
   params?: AnyObj | undefined;
@@ -15,19 +16,37 @@ export type BehaviorParams = {
 const DependsOnKey = Symbol('DependsOn');
 
 export abstract class Behavior<
-  O extends BehaviorParams = {
-    params: undefined;
-    state: undefined;
+  O extends Readonly<BehaviorParams> = {
+    readonly params: undefined;
+    readonly state: undefined;
   },
+  // C extends Behavior<O, any> = Behavior<O, any>,
   P = O['params'] extends undefined ? { [key: string]: void } : O['params'],
   S = O['state'] extends undefined ? { [key: string]: void } : O['state'],
 > {
-  static UUID: string;
-  abstract readonly UUID: string;
+  static get UUID(): string {
+    const uuid = getUUID(this.constructor);
+    console.log('uuid static result: ', this.constructor, this, uuid);
+
+    return uuid;
+  }
+
+  readonly UUID: string = getUUID(this.constructor);
+
   abstract readonly name: string;
+
+  constructor(
+    public readonly service: Service,
+    public readonly params: P | void | undefined = {} as P,
+  ) {
+    this.service = service;
+    this.params = params;
+    this.checkDependencies();
+  }
 
   public readonly accessory = this.service.accessory;
   public readonly platform = this.accessory.platform;
+
   public readonly log = (...args: Parameters<typeof this.service.log.log>) => {
     const [logLevel, ...rest] = args;
 
@@ -42,11 +61,15 @@ export abstract class Behavior<
 
   abstract characteristics: Set<CharacteristicWithUUID>;
 
-  protected readonly [DependsOnKey]: readonly BehaviorTypes[] =
+  protected static readonly [DependsOnKey]: readonly BehaviorTypes[] =
     this[DependsOnKey] ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  #characteristicMap = new Map<CharacteristicWithUUID, Characteristic<any>>();
+  protected characteristicMap = new Map<
+    CharacteristicWithUUID,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Characteristic<any>
+  >();
 
   protected get State() {
     this.service.state.behaviors[this.UUID] ??= {};
@@ -56,22 +79,16 @@ export abstract class Behavior<
     };
   }
 
-  constructor(
-    public readonly service: Service,
-    public readonly params: P | void | undefined = {} as P,
-  ) {
-    this.#checkDependencies();
-  }
-
   protected registerCharacteristics(
-    defaultValues: Map<CharacteristicWithUUID, any> = new Map(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    defaultValues = new Map<CharacteristicWithUUID, any>(),
   ) {
     if (this.params) {
       this.State.params = this.params;
     }
     this.State.name = this.name ?? this.constructor.name;
     this.characteristics.forEach((characteristic) => {
-      this.#characteristicMap.set(
+      this.characteristicMap.set(
         characteristic,
         this.service.useCharacteristic(
           characteristic,
@@ -87,7 +104,7 @@ export abstract class Behavior<
   }
 
   protected get<C extends CharacteristicWithUUID>(characteristic: C) {
-    const value = this.#characteristicMap.get(characteristic);
+    const value = this.characteristicMap.get(characteristic);
     if (!value) {
       throw new Error(
         `[Behavior] Characteristic ${characteristic} not found, did you forget to call this.registerCharacteristics() in the constructor?`,
@@ -97,7 +114,7 @@ export abstract class Behavior<
   }
 
   protected getAllCharacteristics() {
-    return [...this.#characteristicMap.values()];
+    return [...this.characteristicMap.values()];
   }
 
   /**
@@ -131,7 +148,7 @@ export abstract class Behavior<
     return behavior as NonNullable<Service['behaviors']['types'][C]>;
   }
 
-  #checkDependencies() {
+  private checkDependencies() {
     this[DependsOnKey].forEach((dependency) => {
       if (!this.service.behaviors.types[dependency]) {
         this.log(
@@ -148,7 +165,7 @@ export abstract class Behavior<
  * to operate.
  *
  * This is important in cases when you may need to say set something on/off but are
- * not concerned with how that make occur. Such as when a Lock requires specific
+ * not concerned with how to that make occur. Such as when a Lock requires specific
  * behaviors to properly turn on/off where a switch does not - but this behavior
  * simply wants to use the universal methods given on any behavior of type `STATE`.
  *
@@ -156,7 +173,7 @@ export abstract class Behavior<
  *  {@DependsOn([BehaviorTypes.STATE])
  *  class StateTimeoutBehavior extends Behavior {}}
  */
-export function DependsOn(types: readonly BehaviorTypes[]) {
+export function DependsOn<B extends readonly BehaviorTypes[]>(types: B) {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
     constructor.prototype[DependsOnKey] = types;
@@ -167,13 +184,5 @@ export function DependsOn(types: readonly BehaviorTypes[]) {
     };
     console.log('value: ', value);
     return value;
-  };
-}
-
-export function UUID(uuid: string) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  return function (constructor: Function & { UUID: string }) {
-    constructor.prototype.UUID = uuid;
-    constructor.UUID = uuid;
   };
 }

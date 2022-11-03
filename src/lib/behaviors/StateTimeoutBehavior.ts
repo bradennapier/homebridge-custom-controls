@@ -1,8 +1,9 @@
 import { LogLevel } from 'homebridge';
+import { UUID } from '../decorators/UUID';
 import { type Service } from '../helpers';
 
 import type { CharacteristicWithUUID } from '../types';
-import { DependsOn, Behavior, UUID } from './AbstractBehavior';
+import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
 // type StateTimeoutBehaviorParams = undefined;
@@ -17,44 +18,58 @@ export class StateTimeoutBehavior extends Behavior<{
   state: { one: string };
   // params: StateTimeoutBehaviorParams;
 }> {
-  public readonly UUID: string = this.UUID;
   public readonly name = this.constructor.name;
 
-  readonly #type = {
+  protected readonly type = {
     HoldPosition: this.platform.Characteristic.HoldPosition,
     RemainingDuration: this.platform.Characteristic.RemainingDuration,
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([
-    ...Object.values(this.#type),
+    ...Object.values(this.type),
   ]);
 
-  get #state() {
+  protected get $state() {
     return this.State;
   }
 
-  get state() {
-    const state = this.#state;
+  public get state() {
+    const state = this.$state;
     return state as Readonly<typeof state>;
   }
 
   constructor(...args: [Service, undefined]) {
     super(...args);
     super.registerCharacteristics(
-      new Map([
-        [this.#type.HoldPosition, 0],
-        [this.#type.RemainingDuration, 0],
+      new Map<CharacteristicWithUUID, unknown>([
+        [this.type.HoldPosition, false],
+        [this.type.RemainingDuration, 0],
       ]),
     );
-    this.#startSubscriptions();
+    this.startSubscriptions();
   }
 
-  #startSubscriptions() {
+  protected startSubscriptions() {
     //
     this.getType(BehaviorTypes.STATE).stateSet(true);
+
+    this.get(this.type.HoldPosition).onChange((newValue) => {
+      this.log(
+        LogLevel.INFO,
+        `holdPosition ${this.service.params.name} changed to ${newValue}`,
+      );
+      this.updateTimeout();
+    });
+
+    this.get(this.type.HoldPosition).onChange((newValue) => {
+      this.log(
+        LogLevel.INFO,
+        `HOLD POSITION ${this.service.params.name} changed to ${newValue}`,
+      );
+    });
   }
 
-  #updateTimeout() {
+  private updateTimeout() {
     this.log(LogLevel.INFO, `updateTimeout called`);
   }
 }

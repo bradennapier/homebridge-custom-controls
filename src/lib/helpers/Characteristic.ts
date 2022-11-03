@@ -52,11 +52,11 @@ export class Characteristic<V extends CharacteristicValue> {
     }>;
   }
 
-  get #state() {
+  protected get $state() {
     return this.state as Writable<typeof this.state>;
   }
 
-  #syncValues(context: unknown) {
+  protected syncValues(context: unknown) {
     if (this.value !== this.state.value) {
       this.controller.updateValue(this.state.value, context);
     }
@@ -68,22 +68,22 @@ export class Characteristic<V extends CharacteristicValue> {
    * @param value A partial shape of shape which is merged into the state object (shallow).
    * @param syncValues When sync is true (default), the value is immediately updated on the accessory.
    */
-  #setState(
+  protected setState(
     state: Partial<typeof this.state>,
     context: unknown = {},
     syncValues = true,
   ) {
     this.service.state.attributes[this.type.UUID] = {
-      ...this.#state,
+      ...this.state,
       ...state,
     };
 
     if (syncValues) {
-      this.#syncValues(context);
+      this.syncValues(context);
     }
   }
 
-  #subscribers = {
+  protected subscribers = {
     onChange: new Set<Parameters<typeof this.onChange>[0]>(),
     onGet: null as null | Parameters<typeof this.onGet>[0],
   };
@@ -106,9 +106,9 @@ export class Characteristic<V extends CharacteristicValue> {
       change: CharacteristicChange,
     ) => unknown,
   ) {
-    this.#subscribers.onChange.add(callback);
+    this.subscribers.onChange.add(callback);
     return () => {
-      this.#subscribers.onChange.delete(callback);
+      this.subscribers.onChange.delete(callback);
     };
   }
 
@@ -119,14 +119,14 @@ export class Characteristic<V extends CharacteristicValue> {
       state: typeof this.state,
     ) => V | null | Promise<V | null>,
   ) {
-    if (this.#subscribers.onGet) {
+    if (this.subscribers.onGet) {
       this.log.warn(
         `${this.logName} onGet callback was already set and is being replaced by new callback.`,
       );
     }
-    this.#subscribers.onGet = callback;
+    this.subscribers.onGet = callback;
     return () => {
-      this.#subscribers.onGet = null;
+      this.subscribers.onGet = null;
     };
   }
 
@@ -150,13 +150,13 @@ export class Characteristic<V extends CharacteristicValue> {
 
     this.controller.onGet(this.handleGetFromHomekit.bind(this));
 
-    const state = this.#state;
+    const state = this.state;
 
     let isNew = false;
 
     if (!state.createdAt) {
       isNew = true;
-      this.#setState(
+      this.setState(
         {
           name:
             this.type.name ??
@@ -178,7 +178,7 @@ export class Characteristic<V extends CharacteristicValue> {
     }
 
     if (isNew) {
-      this.#setState({
+      this.setState({
         value: initialValue ?? null,
       });
     } else {
@@ -198,17 +198,25 @@ export class Characteristic<V extends CharacteristicValue> {
       this.log.info('[REMOVE ME] Get Context Seeen: ', context);
     }
 
-    if (this.#subscribers.onGet) {
-      // override the get request by a behavior or similar
-      const value = await this.#subscribers.onGet.call(
-        this,
-        context,
-        this.state,
-      );
-      if (value !== this.state.value) {
-        // we do not need to trigger an update as it is being returned
-        // to homekit
-        this.#setState({ value }, context, false);
+    if (this.subscribers.onGet) {
+      try {
+        // override the get request by a behavior or similar
+        const value = await this.subscribers.onGet.call(
+          this,
+          context,
+          this.state,
+        );
+        if (value !== this.state.value) {
+          // we do not need to trigger an update as it is being returned
+          // to homekit
+          this.setState({ value }, context, false);
+        }
+      } catch (error) {
+        console.error(
+          `Failed to Call handler ${String(context)} for onGet due to Error: `,
+          error,
+        );
+        throw error;
       }
     }
 
@@ -216,11 +224,12 @@ export class Characteristic<V extends CharacteristicValue> {
   }
 
   private subscribeToChanges() {
+    console.info(this.subscribeToChanges.name);
     this.controller.on('change', async (change) => {
       const { oldValue, newValue } = change;
 
       if (newValue !== this.state.value) {
-        this.#setState({
+        this.setState({
           oldValue: oldValue ?? null,
           value: newValue ?? null,
           updatedAt: new Date().toString(),
@@ -243,10 +252,10 @@ export class Characteristic<V extends CharacteristicValue> {
           newValue,
         );
 
-        if (this.#subscribers.onChange.size) {
+        if (this.subscribers.onChange.size) {
           const clonedState = structuredClone(this.state);
 
-          this.#subscribers.onChange.forEach((callback) => {
+          this.subscribers.onChange.forEach((callback) => {
             try {
               callback.call(
                 this,
@@ -271,6 +280,7 @@ export class Characteristic<V extends CharacteristicValue> {
    * @param properties The new properties of the characteristic.
    */
   public setProps(properties: CharacteristicProps) {
+    console.info(this, this.setProps.name, { properties });
     this.controller.setProps(properties);
   }
 
@@ -289,6 +299,7 @@ export class Characteristic<V extends CharacteristicValue> {
   }
 
   public setValue(value: V | null, context?: unknown) {
+    console.info(this, this.setValue.name, { value, context });
     this.controller.updateValue(
       value,
       Object.assign(

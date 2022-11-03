@@ -78,7 +78,7 @@ export class Platform implements DynamicPlatformPlugin {
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
-      // log.debug('Executed didFinishLaunching callback');
+      log.debug('Executed didFinishLaunching callback');
       this.createHttpService();
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
@@ -179,10 +179,15 @@ export class Platform implements DynamicPlatformPlugin {
     res.end();
   }
 
-  private createHttpService() {
-    this.server = http.createServer(this.handleRequest.bind(this));
-    this.server.listen(18081, () =>
-      this.log.info('Http server listening on 18081...'),
+  private createHttpService(port = 18081) {
+    const server = http.createServer(this.handleRequest.bind(this));
+    this.server = server;
+    server.listen(port, () =>
+      this.log.info(
+        `Http server ${
+          server.address ?? 'UNKNOWN_ADDRESS'
+        } listening on port: ${port}...`,
+      ),
     );
   }
 }
