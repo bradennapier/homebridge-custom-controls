@@ -1,4 +1,5 @@
 import debug from 'debug';
+import { ROUTE_METADATA } from '../constants';
 
 import type { RouteConfig, RouteMapProtocol } from '../types';
 
@@ -18,6 +19,10 @@ const debugRoutes = {
   off: (route) => handleHapDebug(false, route),
   // eslint-disable-next-line prettier/prettier
 } as RouteMapProtocol;
+
+debugRoutes.on[ROUTE_METADATA] = {
+  description: 'Turn on Debug HAP Logging',
+};
 
 /**
  * /hap/{...params}
