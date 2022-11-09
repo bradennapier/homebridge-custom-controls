@@ -22,8 +22,9 @@ let memoizedRoutes: undefined | (string | [string, RouteMetadata])[];
 export function getRPCSupportedRoutes(
   path: string[] = [],
   childRoutes: RouteMapProtocol = routes,
+  ignoreMemoized = false,
 ) {
-  if (memoizedRoutes) {
+  if (memoizedRoutes && !ignoreMemoized) {
     return memoizedRoutes;
   }
 
@@ -36,13 +37,13 @@ export function getRPCSupportedRoutes(
         const metadata = nextRoute[ROUTE_METADATA];
         const { method = 'GET' } = metadata ?? {};
 
-        const methodRoutePath = `${method} ${routePath}`;
+        const methodRoutePath = `${method} /${routePath}`;
         availableRoutes.push(
           metadata ? [methodRoutePath, metadata] : methodRoutePath,
         );
       } else {
         availableRoutes.push(
-          ...getRPCSupportedRoutes([...path, param], nextRoute),
+          ...getRPCSupportedRoutes([...path, param], nextRoute, true),
         );
       }
 
