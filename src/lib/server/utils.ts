@@ -10,7 +10,7 @@ import type {
 import * as routes from './routes';
 import { ROUTE_METADATA } from './constants';
 
-let memoizedRoutes: undefined | (string | [string, RouteMetadata])[];
+let memoizedRoutes: undefined | RouteMetadata[];
 
 /**
  * Parses the routes from the imported routes and returns an array
@@ -34,13 +34,17 @@ export function getRPCSupportedRoutes(
     (availableRoutes, [param, nextRoute]) => {
       if (typeof nextRoute === 'function') {
         const routePath = [...path, param].join('/');
-        const metadata = nextRoute[ROUTE_METADATA];
-        const { method = 'GET' } = metadata ?? {};
+        const metadata = nextRoute[ROUTE_METADATA] ?? {};
+        const { method = 'GET' } = metadata;
+        delete metadata.method;
+        delete metadata.endpoint;
 
-        const methodRoutePath = `${method} /${routePath}`;
-        availableRoutes.push(
-          metadata ? [methodRoutePath, metadata] : methodRoutePath,
-        );
+        const endpoint = `/${routePath}`;
+        availableRoutes.push({
+          endpoint,
+          method,
+          ...metadata,
+        });
       } else {
         availableRoutes.push(
           ...getRPCSupportedRoutes([...path, param], nextRoute, true),
@@ -49,7 +53,7 @@ export function getRPCSupportedRoutes(
 
       return availableRoutes;
     },
-    [] as Array<string | [string, RouteMetadata]>,
+    [] as RouteMetadata[],
   );
 
   memoizedRoutes = activeRpcRoutes;

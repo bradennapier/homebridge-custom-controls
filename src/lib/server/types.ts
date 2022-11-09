@@ -46,6 +46,7 @@ export interface RouteResult extends RouteResultProtocol {
 export type RouterResult = Promise<void | RouteResultProtocol>;
 
 export type RouteMetadata = {
+  endpoint?: string;
   description?: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   body?: {
