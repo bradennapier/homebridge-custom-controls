@@ -16,8 +16,8 @@ async function handleHapDebug(state: boolean, { platform }: RouteConfig) {
 const debugRoutes = {
   on: (route) => handleHapDebug(true, route),
   off: (route) => handleHapDebug(false, route),
-// eslint-disable-next-line prettier/prettier
-} as const satisfies RouteMapProtocol;
+  // eslint-disable-next-line prettier/prettier
+} as RouteMapProtocol;
 
 /**
  * /hap/{...params}

@@ -14,8 +14,6 @@ async function resetSwitchGroup({
   };
 }
 
-resetSwitchGroup.test = 2;
-
 /**
  * /switchGroups/{...params}
  */

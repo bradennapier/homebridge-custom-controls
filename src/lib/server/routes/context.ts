@@ -18,7 +18,7 @@ handleGetPluginContext[ROUTE_METADATA] = {
   method: 'GET',
   description: 'Get all plugin context in memory',
   // eslint-disable-next-line prettier/prettier
-} satisfies RouteMetadata;
+} as RouteMetadata;
 
 /**
  * /switchGroups/{...params}

@@ -12,7 +12,7 @@ removeAllAccessories[ROUTE_METADATA] = {
   method: 'GET',
   description: 'Remove all accessories',
   // eslint-disable-next-line prettier/prettier
-} satisfies RouteMetadata;
+} as RouteMetadata;
 
 /**
  * /switchGroups/{...params}
