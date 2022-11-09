@@ -322,7 +322,7 @@
             "maximum": 65535,
             "default": 18081,
             "condition": {
-              "functionBody": "return model.rpcServerSettings.enabled === true;"
+              "functionBody": "return model.rpcServer?.enabled === true;"
             }
           }
         }
@@ -344,7 +344,7 @@
           "type": "section",
           "title": "RPC Server Settings (Optional)",
           "expandable": true,
-          "items": ["rpcServerSettings"]
+          "items": ["rpcServer.enabled", "rpcServer.port"]
         },
         "logging"
       ]
