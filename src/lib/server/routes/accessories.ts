@@ -10,8 +10,7 @@ async function removeAllAccessories({ platform }: RouteConfig) {
 
 removeAllAccessories[ROUTE_METADATA] = {
   method: 'GET',
-  description: 'Remove all accessories',
-  // eslint-disable-next-line prettier/prettier
+  description: 'Remove all accessories currently configured',
 } as RouteMetadata;
 
 /**

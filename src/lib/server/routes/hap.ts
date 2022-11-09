@@ -17,11 +17,16 @@ async function handleHapDebug(state: boolean, { platform }: RouteConfig) {
 const debugRoutes = {
   on: (route) => handleHapDebug(true, route),
   off: (route) => handleHapDebug(false, route),
-  // eslint-disable-next-line prettier/prettier
 } as RouteMapProtocol;
 
 debugRoutes.on[ROUTE_METADATA] = {
-  description: 'Turn on Debug HAP Logging',
+  method: 'GET',
+  description: 'Turn ON HAP Debug Logging',
+};
+
+debugRoutes.off[ROUTE_METADATA] = {
+  method: 'GET',
+  description: 'Turn OFF HAP Debug Logging',
 };
 
 /**

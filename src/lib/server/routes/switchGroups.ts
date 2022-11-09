@@ -1,5 +1,6 @@
 import handleSwitchGroups from '../../controllers/switch-groups';
-import type { RouteConfig, RouteResultProtocol } from '../types';
+import { ROUTE_METADATA } from '../constants';
+import type { RouteMetadata, RouteConfig, RouteResultProtocol } from '../types';
 
 async function resetSwitchGroup({
   platform,
@@ -13,6 +14,11 @@ async function resetSwitchGroup({
     statusCode: 204,
   };
 }
+
+resetSwitchGroup[ROUTE_METADATA] = {
+  method: 'GET',
+  description: 'Reset Switch Groups by reloading them from config',
+} as RouteMetadata;
 
 /**
  * /switchGroups/{...params}
