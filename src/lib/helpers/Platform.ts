@@ -87,7 +87,10 @@ export class Platform implements DynamicPlatformPlugin {
       this.removeUnusedAccessories();
 
       if (this.config.rpcServer?.enabled) {
-        createServer(this.config.rpcServer.port, this).catch((err) => {
+        const port = this.config.rpcServer.port
+          ? parseInt(this.config.rpcServer.port, 10)
+          : 18081;
+        createServer(port, this).catch((err) => {
           this.log.error(
             `Error starting RPC server on port "${this.config.rpcServer.port}":`,
             err,

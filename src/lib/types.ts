@@ -103,7 +103,7 @@ export type SwitchGroup = {
 
 export interface RPCServerSettingsProtocol {
   enabled: boolean;
-  port?: undefined | number;
+  port?: undefined | string;
 }
 
 export interface RPCServerDisabled extends RPCServerSettingsProtocol {
@@ -113,7 +113,7 @@ export interface RPCServerDisabled extends RPCServerSettingsProtocol {
 
 export interface RPCServerEnabled extends RPCServerSettingsProtocol {
   enabled: true;
-  port: number;
+  port: string;
 }
 
 export interface Config {
