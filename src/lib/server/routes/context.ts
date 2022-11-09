@@ -20,6 +20,6 @@ handleGetPluginContext[ROUTE_METADATA] = {
 } as RouteMetadata;
 
 /**
- * /switchGroups/{...params}
+ * /context
  */
 export const context = handleGetPluginContext;

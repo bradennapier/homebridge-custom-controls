@@ -10,6 +10,7 @@ import {
   StateBehaviorLock,
   StateBehaviorSwitch,
 } from '../behaviors';
+import { API, Logger } from 'homebridge';
 
 const SWITCH_GROUP_SUBTYPE = 'switchGroup';
 
@@ -23,7 +24,8 @@ const SWITCH_GROUP_SUBTYPE = 'switchGroup';
  */
 export class SwitchGroupController {
   private accessory: Accessory;
-  private log = this.platform.log;
+  public readonly log: Logger = this.platform.log;
+  public readonly api: API = this.platform.api;
 
   /**
    * Contains the characteristics of all switches and their configurations.
@@ -48,6 +50,7 @@ export class SwitchGroupController {
     this.accessory = new Accessory(platform, {
       name: group.name,
       subType: `${SWITCH_GROUP_SUBTYPE}-${group.uniqueID}`,
+      category: this.api.hap.Categories.SPRINKLER,
     });
 
     this.accessory.setInformation({

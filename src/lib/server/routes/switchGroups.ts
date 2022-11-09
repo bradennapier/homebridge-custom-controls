@@ -15,6 +15,7 @@ async function resetSwitchGroup({
   };
 }
 
+// TODO: convert to satisfies RouteMetadata
 resetSwitchGroup[ROUTE_METADATA] = {
   method: 'GET',
   description: 'Reset Switch Groups by reloading them from config',
