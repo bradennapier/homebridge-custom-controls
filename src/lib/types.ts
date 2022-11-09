@@ -101,9 +101,25 @@ export type SwitchGroup = {
   switches: SwitchConfig[];
 };
 
+export interface RPCServerSettingsProtocol {
+  enabled: boolean;
+  port?: undefined | number;
+}
+
+export interface RPCServerDisabled extends RPCServerSettingsProtocol {
+  enabled: false;
+  port?: undefined;
+}
+
+export interface RPCServerEnabled extends RPCServerSettingsProtocol {
+  enabled: true;
+  port: number;
+}
+
 export interface Config {
   name?: string;
   logging: 'basic' | 'verbose' | 'none';
+  rpcServer: RPCServerDisabled | RPCServerEnabled;
   includeSpecialSensors?: SpecialSensorTypes[];
   switchGroups?: SwitchGroup[];
   platform: 'CustomControls';

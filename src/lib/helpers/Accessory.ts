@@ -113,17 +113,22 @@ export class Accessory {
   }
 
   /**
-   * Defines a service for usage with the accessory. When defining a service, it is marked as used and thus not removed from HomeKit after the initialization.
+   * Defines a service for usage with the accessory. When defining a service, it is marked
+   * as used and thus not removed from HomeKit after the initialization.
+   *
    * @param type The type of the service.
    * @param name The name that should be displayed in HomeKit.
    * @param subType The sub type of the service. May be omitted if the type is already unique.
+   * @param params The configuration for the service.
    */
   public useService<ITEM extends AnyObj | undefined = undefined>(
     type: ServiceWithUUID,
     name: string,
     subType?: string,
     params?: {
+      /** The configuration of the service */
       config?: ITEM;
+      /** Any behaviors that we are depending on */
       behaviors?: ReadonlyArray<ServiceBehaviorsParam>;
     },
   ): Service {

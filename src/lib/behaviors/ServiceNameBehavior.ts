@@ -29,12 +29,8 @@ export class ServiceNameBehavior extends Behavior<{
     ...Object.values(this.type),
   ]);
 
-  get $state() {
-    return this.State;
-  }
-
   get state() {
-    const state = structuredClone(this.$state);
+    const state = structuredClone(this.State);
     return Object.freeze(state);
   }
 

@@ -1,16 +1,13 @@
-import http from 'http';
-import { URL } from 'url';
-import path from 'path';
-
-import debug from 'debug';
-import {
+import type {
   API,
   DynamicPlatformPlugin,
-  type Logger,
+  Logger,
   PlatformAccessory,
-  PlatformAccessoryEvent,
   PlatformConfig,
 } from 'homebridge';
+// const enums which are removed from code but must be used as values
+import { PlatformAccessoryEvent } from 'homebridge';
+
 import { APIEvent } from 'homebridge';
 import { Config } from '../types';
 
@@ -20,6 +17,7 @@ import handleSwitchGroups, {
 
 import type { AccessoryContext } from './Accessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from '../../settings';
+import { createServer } from '../server';
 
 /**
  * Represents the platform of the plugin.
@@ -82,12 +80,20 @@ export class Platform implements DynamicPlatformPlugin {
     // to start discovery of new accessories.
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
-      this.createHttpService();
       // run the method to discover / register your devices as accessories
       // Sets the API configuration
       handleSwitchGroups(this);
 
       this.removeUnusedAccessories();
+
+      if (this.config.rpcServer.enabled) {
+        createServer(this.config.rpcServer.port, this).catch((err) => {
+          this.log.error(
+            `Error starting RPC server on port "${this.config.rpcServer.port}":`,
+            err,
+          );
+        });
+      }
     });
   }
 
@@ -101,9 +107,25 @@ export class Platform implements DynamicPlatformPlugin {
     this.accessories.clear();
   }
 
+  public removeUnusedAccessories() {
+    const cachedAccessories = Array.from(this.accessories.values());
+    const configuredIDs = Array.from(this.configuredAccessories);
+    const unusedAccessories = cachedAccessories.filter(
+      (accessory) => !configuredIDs.includes(accessory.UUID),
+    );
+
+    this.api.unregisterPlatformAccessories(
+      PLUGIN_NAME,
+      PLATFORM_NAME,
+      unusedAccessories,
+    );
+  }
+
   /**
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
+   *
+   * @implements {DynamicPlatformPlugin}
    */
   configureAccessory(accessory: PlatformAccessory<AccessoryContext>) {
     // this.log.info(
@@ -123,85 +145,5 @@ export class Platform implements DynamicPlatformPlugin {
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.set(accessory.UUID, accessory);
-  }
-
-  public removeUnusedAccessories() {
-    const cachedAccessories = Array.from(this.accessories.values());
-    const configuredIDs = Array.from(this.configuredAccessories);
-    const unusedAccessories = cachedAccessories.filter(
-      (accessory) => !configuredIDs.includes(accessory.UUID),
-    );
-
-    this.api.unregisterPlatformAccessories(
-      PLUGIN_NAME,
-      PLATFORM_NAME,
-      unusedAccessories,
-    );
-  }
-
-  private server: http.Server | undefined = undefined;
-
-  public handleRequest(req: http.IncomingMessage, res: http.ServerResponse) {
-    if (!req.url) {
-      this.log.warn('No Url found for handleRequest');
-      return;
-    }
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    this.log.info(`Request: `, url);
-    const urlPath = url.pathname.split(path.sep);
-    urlPath.shift();
-    const endpoint = urlPath.shift();
-    this.log.info('Parts: ', endpoint, urlPath);
-    switch (endpoint) {
-      case 'remove-all': {
-        this.log.warn('Removing all accessories due to http request');
-        this.removeAllAccessories();
-        break;
-      }
-      case 'reset-switch-groups': {
-        this.log.warn('Resetting Switch Groups');
-        handleSwitchGroups(this);
-
-        break;
-      }
-      case 'hap-debug-on': {
-        this.log.warn('Starting Debug Logging for HAP-NodeJS');
-        debug.enable('HAP-NodeJS:*');
-        break;
-      }
-      case 'hap-debug-off': {
-        this.log.warn('Stopping Debug Logging for HAP-NodeJS');
-        debug.disable();
-        break;
-      }
-      case 'context': {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(
-          JSON.stringify(
-            [...this.accessories.values()].map((acc) => acc.context),
-            null,
-            2,
-          ),
-        );
-        return;
-      }
-      default:
-        break;
-    }
-
-    res.writeHead(204); // 204 No content
-    res.end();
-  }
-
-  private createHttpService(port = 18081) {
-    const server = http.createServer(this.handleRequest.bind(this));
-    this.server = server;
-    server.listen(port, () =>
-      this.log.info(
-        `Http server ${
-          server.address ?? 'UNKNOWN_ADDRESS'
-        } listening on port: ${port}...`,
-      ),
-    );
   }
 }

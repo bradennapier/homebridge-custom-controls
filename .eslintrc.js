@@ -25,6 +25,7 @@ const config = {
     eqeqeq: 'warn',
     curly: ['warn', 'all'],
     'prefer-arrow-callback': ['off'],
+    'prefer-template': ['error'],
     'no-console': ['warn'], // use the provided Homebridge log method instead
     'comma-spacing': ['error'],
 

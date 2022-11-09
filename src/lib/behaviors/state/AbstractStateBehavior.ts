@@ -14,5 +14,5 @@ export default abstract class StateBehavior<
       this as any;
   }
 
-  abstract stateSet(desiredState: boolean): void;
+  abstract stateSet(desiredState: boolean): Promise<void>;
 }

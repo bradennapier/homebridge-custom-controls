@@ -66,8 +66,7 @@ export class SwitchGroupController {
 
       if (!service) {
         this.platform.log.error(
-          `[SwitchGroupController] Configured switch ${item.name} in group ${group.name} has invalid displayAs value: ${group.displayAs} ` +
-            this.group.displayAs,
+          `[SwitchGroupController] Configured switch ${item.name} in group ${group.name} has invalid displayAs value: ${group.displayAs} ${this.group.displayAs}`,
         );
         break;
       }
@@ -118,31 +117,6 @@ export class SwitchGroupController {
       default:
         return null;
     }
-  }
-
-  /**
-   * Clears the existing timeout and sets a new timeout for the specified switch.
-   * @param item The configuration of the switch for which the new timeout is set (if configured).
-   */
-  private updateTimeout(item: SwitchConfig) {
-    const config = this.onHandlers.get(item.name);
-
-    if (!config) {
-      this.platform.log.warn(
-        `[SwitchGroup/${this.group.name}] no config found for switch ${item.name}!`,
-      );
-      return;
-    }
-
-    clearTimeout(config.timeoutId);
-
-    if (!item.timeoutSeconds) {
-      return;
-    }
-
-    config.timeoutId = setTimeout(() => {
-      this.platform.log.info(`Timeout Period Expires for ${item.name}`);
-    }, item.timeoutSeconds * 1000);
   }
 }
 

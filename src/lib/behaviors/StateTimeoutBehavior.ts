@@ -1,7 +1,7 @@
 import { LogLevel } from 'homebridge';
 
 import { UUID } from '../decorators/UUID';
-import { Characteristic, type Service } from '../helpers';
+import { type Service } from '../helpers';
 
 import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
 import { forAwaitInterval } from '../utils/promise';
@@ -11,6 +11,8 @@ import { BehaviorTypes } from './types';
 // type StateTimeoutBehaviorParams = undefined;
 
 /**
+ * A behavior that implements general timeout behavior with the ability to set the Timeout
+ * duration, disable it, or reset it.
  *
  * @DependsOn BehaviorTypes.STATE
  */
@@ -58,8 +60,10 @@ export class StateTimeoutBehavior extends Behavior<{
   private timerId: NodeJS.Timeout | undefined = undefined;
 
   protected async startSubscriptions() {
-    //
-    const stateChara = this.getType(BehaviorTypes.STATE).get(
+    // Get the state characteristic from the dependend upon STATE behavior.
+    // This could be locks or switches or whatever conforms to the behavior / protocol.
+    const stateBehavior = this.getType(BehaviorTypes.STATE);
+    const stateChara = stateBehavior.get(
       (type) =>
         (type.On as UUIDCharacteristics<'On'>) ??
         (type.LockTargetState as UUIDCharacteristics<'LockTargetState'>),
@@ -67,9 +71,7 @@ export class StateTimeoutBehavior extends Behavior<{
 
     const remainingDuration = this.get(this.type.RemainingDuration);
     const setDuration = this.get(this.type.SetDuration);
-    const holdPosition: Characteristic<boolean> = this.get(
-      this.type.HoldPosition,
-    );
+    const holdPosition = this.get(this.type.HoldPosition);
     // this has to match the remainingDuration max
     setDuration.setProps({
       minValue: 0,
@@ -85,6 +87,9 @@ export class StateTimeoutBehavior extends Behavior<{
       );
 
       switch (newValue) {
+        // renders to 1 (true) or 0 (false)
+        case this.platform.hap.Characteristic.LockTargetState.SECURED:
+        case this.platform.hap.Characteristic.LockTargetState.UNSECURED:
         case false:
         case true: {
           if (newValue && setDuration.value) {
@@ -123,10 +128,9 @@ export class StateTimeoutBehavior extends Behavior<{
                   `RemainingDuration HOLD POSITION IS TRUE, RESETTING TIMER`,
                 );
 
-                setTimeout(() => {
-                  stateChara.setValue(false);
-
-                  stateChara.setValue(true);
+                setTimeout(async () => {
+                  await stateBehavior.stateSet(false);
+                  await stateBehavior.stateSet(true);
                 });
 
                 break;
@@ -155,11 +159,6 @@ export class StateTimeoutBehavior extends Behavior<{
             );
             remainingDuration.setValue(0);
           }
-          break;
-        }
-        case this.platform.hap.Characteristic.LockTargetState.SECURED:
-        case this.platform.hap.Characteristic.LockTargetState.UNSECURED: {
-          this.log(LogLevel.INFO, `Timeout Behavior for TargetLockState`);
           break;
         }
       }

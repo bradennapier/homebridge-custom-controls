@@ -55,7 +55,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
     this.log(LogLevel.INFO, `updateTimeout called`);
   }
 
-  public stateSet(desiredState: boolean): void {
+  public async stateSet(desiredState: boolean): Promise<void> {
     // set state
     this.log(LogLevel.INFO, `stateSet called to set to: ${desiredState}`);
     this.get(this.type.On).setValue(desiredState);

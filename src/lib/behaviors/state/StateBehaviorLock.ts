@@ -46,8 +46,9 @@ export class StateBehaviorLock extends StateBehavior<{
   }
 
   private startSubscriptions() {
-    const currentStateChara = this.get(this.type.LockCurrentState);
     const targetStateChara = this.get(this.type.On);
+    const currentStateChara = this.get(this.type.LockCurrentState);
+
     {
       currentStateChara.onChange((newValue) => {
         this.log(

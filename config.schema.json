@@ -35,6 +35,10 @@
         "placeholder": "Unique Value (e.g bathroom-occupancy-toggle-switch)",
         "description": "Provide a unique id that will never change even if the name does.  This must be unique to all other switches in the group."
       },
+      "rpcServerPort": {
+        "title": "Server Port",
+        "type": "number"
+      },
       "displayAs": {
         "title": "Display As",
         "type": "string",
@@ -297,6 +301,31 @@
             "name": "<b>System Startup</b> - Adds a sensor which will be closed when the system starts and will open after 30 seconds.  This can be useful to query during automations and handle the case where things happen during system startup.  It can also be used to trigger automation once the system is ready (when it is opened)"
           }
         ]
+      },
+      "rpcServer": {
+        "title": "RPC Server Settings (Optional)",
+        "notitle": true,
+        "description": "An RPC Server can be enabled that provides a simple HTTP Server on the defined port.",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "title": "Enable RPC Server",
+            "type": "boolean",
+            "default": false
+          },
+          "port": {
+            "title": "Server Port",
+            "type": "integer",
+            "description": "The port that the RPC Server will listen on, defaults to 18081",
+            "required": true,
+            "minimum": 0,
+            "maximum": 65535,
+            "default": 18081,
+            "condition": {
+              "functionBody": "return model.rpcServerSettings.enabled === true;"
+            }
+          }
+        }
       }
     }
   },
@@ -310,6 +339,12 @@
           "title": "Included System Sensors",
           "expandable": true,
           "items": ["includeSpecialSensors"]
+        },
+        {
+          "type": "section",
+          "title": "RPC Server Settings (Optional)",
+          "expandable": true,
+          "items": ["rpcServerSettings"]
         },
         "logging"
       ]
