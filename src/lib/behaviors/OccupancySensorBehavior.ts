@@ -50,9 +50,13 @@ export class OccupancySensorBehavior extends Behavior<{
         [this.type.MotionDetected, false],
       ]),
     );
-    this.startSubscriptions().then(() => {
-      this.log(LogLevel.DEBUG, `startSubscriptions done`);
-    });
+    this.startSubscriptions()
+      .then(() => {
+        this.log(LogLevel.DEBUG, `startSubscriptions done`);
+      })
+      .catch((err) => {
+        this.log(LogLevel.ERROR, `startSubscriptions error`, err);
+      });
   }
 
   protected async startSubscriptions() {
