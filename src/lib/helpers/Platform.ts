@@ -85,6 +85,7 @@ export class Platform implements DynamicPlatformPlugin {
       handleSwitchGroups(this);
 
       this.removeUnusedAccessories();
+      this.removeUnusedCharacteristics();
 
       if (this.config.rpcServer?.enabled) {
         const port = this.config.rpcServer.port
@@ -111,6 +112,34 @@ export class Platform implements DynamicPlatformPlugin {
   }
 
   public removeUnusedAccessories() {
+    const cachedAccessories = Array.from(this.accessories.values());
+    const configuredIDs = Array.from(this.configuredAccessories);
+    const unusedAccessories = cachedAccessories.filter(
+      (accessory) => !configuredIDs.includes(accessory.UUID),
+    );
+
+    this.api.unregisterPlatformAccessories(
+      PLUGIN_NAME,
+      PLATFORM_NAME,
+      unusedAccessories,
+    );
+  }
+
+  public removeUnusedServices() {
+    const cachedAccessories = Array.from(this.accessories.values());
+    const configuredIDs = Array.from(this.configuredAccessories);
+    const unusedAccessories = cachedAccessories.filter(
+      (accessory) => !configuredIDs.includes(accessory.UUID),
+    );
+
+    this.api.unregisterPlatformAccessories(
+      PLUGIN_NAME,
+      PLATFORM_NAME,
+      unusedAccessories,
+    );
+  }
+
+  public removeUnusedCharacteristics() {
     const cachedAccessories = Array.from(this.accessories.values());
     const configuredIDs = Array.from(this.configuredAccessories);
     const unusedAccessories = cachedAccessories.filter(

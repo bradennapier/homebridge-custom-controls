@@ -89,7 +89,7 @@ export class SwitchGroupController {
       'Occupancy Sensor',
       `${SUBTYPE}-${group.uniqueID}-occupancy`,
       {
-        behaviors: [OccupancySensorBehavior],
+        behaviors: [StateTimeoutBehavior, OccupancySensorBehavior],
       },
     );
 
