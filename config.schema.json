@@ -315,7 +315,7 @@
           },
           "port": {
             "title": "Server Port",
-            "type": "integer",
+            "type": "string",
             "description": "The port # (<em>0-65535</em>) that the RPC Server will listen on, defaults to 18081, 0 is a randomly open port",
             "placeholder": "18081",
             "default": "18081",
