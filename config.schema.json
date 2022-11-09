@@ -315,12 +315,10 @@
           },
           "port": {
             "title": "Server Port",
-            "type": "integer",
-            "description": "The port that the RPC Server will listen on, defaults to 18081",
+            "type": "string",
+            "description": "The port # (<em>0-65535</em>) that the RPC Server will listen on, defaults to 18081, 0 is a randomly open port",
             "required": true,
-            "minimum": 0,
-            "maximum": 65535,
-            "default": 18081,
+            "pattern": "^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$",
             "condition": {
               "functionBody": "return model.rpcServer?.enabled === true;"
             }
