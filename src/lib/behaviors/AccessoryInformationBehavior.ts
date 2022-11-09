@@ -50,9 +50,9 @@ export class AccessoryInformationBehavior extends Behavior<{
           case this.platform.Characteristic.SerialNumber.UUID:
             return this.service.accessory.uuid;
           case this.platform.Characteristic.FirmwareRevision.UUID:
-            return PACKAGE_VERSION;
+            return PACKAGE_VERSION ?? 'FirmwareRevision Unknown?';
           case this.platform.Characteristic.HardwareRevision.UUID:
-            return PACKAGE_VERSION;
+            return PACKAGE_VERSION ?? 'HardwareRevision Unknown?';
           default:
             this.log(
               LogLevel.WARN,

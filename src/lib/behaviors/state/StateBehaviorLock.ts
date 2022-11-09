@@ -15,7 +15,7 @@ export class StateBehaviorLock extends StateBehavior<{
     };
   };
 }> {
-  public readonly name = this.constructor.name;
+  public readonly name = StateBehaviorLock.name;
 
   public readonly type = {
     LockCurrentState: this.platform.Characteristic.LockCurrentState,

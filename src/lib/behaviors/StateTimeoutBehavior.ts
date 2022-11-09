@@ -22,7 +22,7 @@ export class StateTimeoutBehavior extends Behavior<{
   state: { one: string };
   // params: StateTimeoutBehaviorParams;
 }> {
-  public readonly name = this.constructor.name;
+  public readonly name = StateTimeoutBehavior.name;
 
   public readonly type = {
     HoldPosition: this.platform.Characteristic.HoldPosition,
@@ -52,6 +52,10 @@ export class StateTimeoutBehavior extends Behavior<{
         [this.type.SetDuration, 0],
       ]),
     );
+
+    this.service.behaviors.types[BehaviorTypes.TIMEOUT] =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this as any;
     this.startSubscriptions().then(() => {
       this.log(LogLevel.DEBUG, `startSubscriptions done`);
     });

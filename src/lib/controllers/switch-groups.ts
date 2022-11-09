@@ -11,8 +11,9 @@ import {
   StateBehaviorSwitch,
 } from '../behaviors';
 import { API, Logger } from 'homebridge';
+import { OccupancySensorBehavior } from '../behaviors/OccupancySensorBehavior';
 
-const SWITCH_GROUP_SUBTYPE = 'switchGroup';
+const SUBTYPE = 'switchGroup';
 
 // type SwitchAccessoryContext = {
 //   uuid: string;
@@ -49,13 +50,13 @@ export class SwitchGroupController {
 
     this.accessory = new Accessory(platform, {
       name: group.name,
-      subType: `${SWITCH_GROUP_SUBTYPE}-${group.uniqueID}`,
+      subType: `${SUBTYPE}-${group.uniqueID}`,
       category: this.api.hap.Categories.SPRINKLER,
     });
 
     this.accessory.setInformation({
       manufacturer: group.name,
-      model: SWITCH_GROUP_SUBTYPE,
+      model: SUBTYPE,
       serialNumber: group.uniqueID,
       firmwareRevision: PACKAGE_VERSION,
     });
@@ -77,6 +78,21 @@ export class SwitchGroupController {
       // service.removeUnusedCharacteristics();
     }
 
+    // this.accessory.useService(
+    //   this.platform.Service.ContactSensor,
+    //   'Contact Sensor 1',
+    //   `${SUBTYPE}-${group.uniqueID}-cc1`,
+    // );
+
+    this.accessory.useService(
+      this.platform.Service.OccupancySensor,
+      'Occupancy Sensor',
+      `${SUBTYPE}-${group.uniqueID}-occupancy`,
+      {
+        behaviors: [OccupancySensorBehavior],
+      },
+    );
+
     this.accessory.cleanupServices();
   }
 
@@ -86,12 +102,16 @@ export class SwitchGroupController {
         config: item,
       },
     };
+    const id = `${SUBTYPE}-${this.group.uniqueID}-${
+      item.uniqueID ?? item.name
+    }-${this.group.displayAs}`;
+
     switch (this.group.displayAs) {
       case 'locks':
         return this.accessory.useService(
           this.platform.Service.LockMechanism,
           item.name,
-          `${item.uniqueID ?? item.name}-${SWITCH_GROUP_SUBTYPE}-lock`,
+          id,
           {
             ...opts,
             behaviors: [StateBehaviorLock, StateTimeoutBehavior],
@@ -101,7 +121,7 @@ export class SwitchGroupController {
         return this.accessory.useService(
           this.platform.Service.Outlet,
           item.name,
-          `${item.uniqueID}-${SWITCH_GROUP_SUBTYPE}-outlet`,
+          id,
           {
             ...opts,
             behaviors: [StateBehaviorSwitch, StateTimeoutBehavior],
@@ -111,7 +131,7 @@ export class SwitchGroupController {
         return this.accessory.useService(
           this.platform.Service.Switch,
           item.name,
-          `${item.uniqueID}-${SWITCH_GROUP_SUBTYPE}-switch`,
+          id,
           {
             ...opts,
             behaviors: [StateBehaviorSwitch, StateTimeoutBehavior],

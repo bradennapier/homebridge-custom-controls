@@ -176,7 +176,7 @@ export abstract class Behavior<
       );
     }
 
-    return behavior as NonNullable<Service['behaviors']['types'][C]>;
+    return behavior as NonNullable<Service['behaviors']['types'][typeof type]>;
   }
 
   private checkDependencies() {
@@ -210,7 +210,8 @@ export function DependsOn<B extends readonly BehaviorTypes[]>(types: B) {
     constructor.prototype[DependsOnKey] = types;
     constructor[DependsOnKey] = types;
     // console.log(constructor, constructor.prototype);
-    const value = class DependsOn extends constructor {
+    const value = class extends constructor {
+      name = constructor.name;
       [DependsOnKey] = types;
     };
     // console.log('value: ', value);

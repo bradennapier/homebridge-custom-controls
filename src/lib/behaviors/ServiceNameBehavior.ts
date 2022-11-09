@@ -17,12 +17,11 @@ export class ServiceNameBehavior extends Behavior<{
   params: AccessoryInformation;
   // state: {}
 }> {
-  public readonly name = this.constructor.name;
+  public readonly name = ServiceNameBehavior.name;
 
   public readonly type = {
     Name: this.platform.Characteristic.Name,
     ConfiguredName: this.platform.Characteristic.ConfiguredName,
-    // CustomCharacteristic: CustomCharacteristic(this.platform),
   } as const;
 
   public readonly characteristics = new Set<CharacteristicWithUUID>([

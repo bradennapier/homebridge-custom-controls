@@ -11,7 +11,7 @@ export class StateBehaviorSwitch extends StateBehavior<{
   state: { one: string };
   // params: undefined;
 }> {
-  public readonly name = this.constructor.name;
+  public readonly name = StateBehaviorSwitch.name;
 
   public readonly type = {
     On: this.platform.Characteristic.On,
