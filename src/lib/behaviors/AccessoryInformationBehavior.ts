@@ -35,7 +35,15 @@ export class AccessoryInformationBehavior extends Behavior<{
 
   constructor(...args: [Service, AccessoryInformation]) {
     super(...args);
-    this.registerCharacteristics();
+    super.registerCharacteristics(
+      new Map<CharacteristicWithUUID, unknown>([
+        [this.type.Manufacturer, this.params.manufacturer ?? 'Unknown'],
+        [this.type.Model, this.params.model ?? 'Unknown'],
+        [this.type.SerialNumber, this.params.serialNumber ?? 'Unknown'],
+        [this.type.FirmwareRevision, this.params.firmwareRevision ?? 'Unknown'],
+        [this.type.HardwareRevision, this.params.hardwareRevision ?? 'Unknown'],
+      ]),
+    );
     this.startSubscriptions();
   }
 
