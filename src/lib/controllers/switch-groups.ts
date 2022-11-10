@@ -9,10 +9,10 @@ import {
   StateTimeoutBehavior,
   StateBehaviorLock,
   StateBehaviorSwitch,
-  TimeoutBehavior,
+  // TimeoutBehavior,
 } from '../behaviors';
 import { API, Logger } from 'homebridge';
-import { OccupancySensorBehavior } from '../behaviors/OccupancySensorBehavior';
+// import { OccupancySensorBehavior } from '../behaviors/OccupancySensorBehavior';
 
 const SUBTYPE = 'switchGroup';
 
@@ -85,14 +85,14 @@ export class SwitchGroupController {
     //   `${SUBTYPE}-${group.uniqueID}-cc1`,
     // );
 
-    this.accessory.useService(
-      this.platform.Service.OccupancySensor,
-      'Occupancy Sensor',
-      `${SUBTYPE}-${group.uniqueID}-occupancy`,
-      {
-        behaviors: [TimeoutBehavior, OccupancySensorBehavior],
-      },
-    );
+    // this.accessory.useService(
+    //   this.platform.Service.OccupancySensor,
+    //   'Occupancy Sensor',
+    //   `${SUBTYPE}-${group.uniqueID}-occupancy`,
+    //   {
+    //     behaviors: [TimeoutBehavior, OccupancySensorBehavior],
+    //   },
+    // );
 
     this.accessory.cleanupServices();
   }
