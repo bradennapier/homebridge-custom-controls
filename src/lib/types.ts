@@ -171,8 +171,8 @@ type ServiceBehaviorsMapped = {
     ServiceBehaviorsImport[K]
   > extends [Service, infer P]
     ? P extends undefined
-      ? ServiceBehaviorsImport[K] | [ServiceBehaviorsImport[K], P]
-      : [ServiceBehaviorsImport[K], P]
+      ? ServiceBehaviorsImport[K] | readonly [ServiceBehaviorsImport[K], P]
+      : readonly [ServiceBehaviorsImport[K], P]
     : ServiceBehaviorsImport[K];
 };
 

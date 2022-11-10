@@ -8,11 +8,25 @@ import { forAwaitInterval } from '../utils/promise';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
 
-// type StateTimeoutBehaviorParams = undefined;
+export type StateTimeoutBehaviorParams = Readonly<{
+  /**
+   * The default is to start the timeout when
+   * the state becomes true (switched on), but
+   * this can be inverted using this param.
+   */
+  timeoutWhenStateBecomes?: boolean;
+}>;
 
 /**
  * A behavior that implements general timeout behavior with the ability to set the Timeout
  * duration, disable it, or reset it.
+ *
+ * When the timer expires the attached State handler will be changed.
+ *
+ * @remarks
+ *
+ * This is purely for controlling the value of a State behavior which
+ * extends AbstractStateBehavior.
  *
  * @DependsOn BehaviorTypes.STATE
  */
@@ -20,6 +34,7 @@ import { BehaviorTypes } from './types';
 @DependsOn([BehaviorTypes.STATE])
 export class StateTimeoutBehavior extends Behavior<{
   state: { one: string };
+  params: Required<StateTimeoutBehaviorParams>;
   // params: StateTimeoutBehaviorParams;
 }> {
   public readonly name = StateTimeoutBehavior.name;
@@ -43,8 +58,13 @@ export class StateTimeoutBehavior extends Behavior<{
     return state as Readonly<typeof state>;
   }
 
-  constructor(...args: [Service, undefined]) {
-    super(...args);
+  constructor(...args: [Service, undefined | StateTimeoutBehaviorParams]) {
+    const [service, params] = args;
+    super(service, {
+      ...(params ?? {}),
+      timeoutWhenStateBecomes: params?.timeoutWhenStateBecomes ?? true,
+    });
+
     super.registerCharacteristics(
       new Map<CharacteristicWithUUID, unknown>([
         [this.type.HoldPosition, false],
@@ -53,9 +73,6 @@ export class StateTimeoutBehavior extends Behavior<{
       ]),
     );
 
-    this.service.behaviors.types[BehaviorTypes.TIMEOUT] =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this as any;
     this.startSubscriptions().then(() => {
       this.log(LogLevel.DEBUG, `startSubscriptions done`);
     });
@@ -64,9 +81,11 @@ export class StateTimeoutBehavior extends Behavior<{
   private timerId: NodeJS.Timeout | undefined = undefined;
 
   protected async startSubscriptions() {
+    const { timeoutWhenStateBecomes } = this.params;
     // Get the state characteristic from the dependend upon STATE behavior.
     // This could be locks or switches or whatever conforms to the behavior / protocol.
     const stateBehavior = this.getType(BehaviorTypes.STATE);
+
     const stateChara = stateBehavior.get(
       (type) =>
         (type.On as UUIDCharacteristics<'On'>) ??
@@ -96,7 +115,7 @@ export class StateTimeoutBehavior extends Behavior<{
         case this.platform.hap.Characteristic.LockTargetState.UNSECURED:
         case false:
         case true: {
-          if (newValue && setDuration.value) {
+          if (newValue === timeoutWhenStateBecomes && setDuration.value) {
             this.log(
               LogLevel.INFO,
               `Set Duration being used to set Remaining Duration ${setDuration.value}`,
@@ -108,7 +127,7 @@ export class StateTimeoutBehavior extends Behavior<{
               const setDurationValue = setDuration.value;
 
               if (remainingDuration.value === 0) {
-                stateChara.setValue(false);
+                await stateBehavior.stateSet(!timeoutWhenStateBecomes);
                 break;
               }
 
@@ -122,7 +141,7 @@ export class StateTimeoutBehavior extends Behavior<{
                   LogLevel.INFO,
                   `RemainingDuration SET DURATION SET TO 0 , cancel timer`,
                 );
-                stateChara.setValue(false);
+                await stateBehavior.stateSet(!timeoutWhenStateBecomes);
                 break;
               }
 
@@ -133,8 +152,8 @@ export class StateTimeoutBehavior extends Behavior<{
                 );
 
                 setTimeout(async () => {
-                  await stateBehavior.stateSet(false);
-                  await stateBehavior.stateSet(true);
+                  await stateBehavior.stateSet(!timeoutWhenStateBecomes);
+                  await stateBehavior.stateSet(timeoutWhenStateBecomes);
                 });
 
                 break;
@@ -146,7 +165,7 @@ export class StateTimeoutBehavior extends Behavior<{
 
               if (remaining <= 0) {
                 this.log(LogLevel.INFO, `RemainingDuration TIMED OUT`);
-                stateChara.setValue(false);
+                await stateBehavior.stateSet(!timeoutWhenStateBecomes);
                 break;
               }
 
@@ -213,12 +232,12 @@ export class StateTimeoutBehavior extends Behavior<{
     {
       const chara = remainingDuration;
 
-      remainingDuration.onChange((newValue) => {
+      chara.onChange((newValue) => {
         this.log(
           LogLevel.INFO,
           `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
         );
-        remainingDuration.setValue(newValue);
+        chara.setValue(newValue);
       });
     }
   }

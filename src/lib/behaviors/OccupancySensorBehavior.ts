@@ -3,7 +3,7 @@ import { LogLevel } from 'homebridge';
 import { UUID } from '../decorators/UUID';
 import { type Service } from '../helpers';
 
-import type { CharacteristicWithUUID, UUIDCharacteristics } from '../types';
+import type { CharacteristicWithUUID } from '../types';
 // import { forAwaitInterval } from '../utils/promise';
 import { DependsOn, Behavior } from './AbstractBehavior';
 import { BehaviorTypes } from './types';
@@ -16,7 +16,7 @@ import { BehaviorTypes } from './types';
  *
  * @DependsOn BehaviorTypes.STATE
  */
-@UUID('ffdfc6eb-7b79-4078-b0fb-6f93f59fe095')
+@UUID('13eebe39-b4dd-482e-85ee-f6e41d6c827c')
 @DependsOn([BehaviorTypes.TIMEOUT])
 export class OccupancySensorBehavior extends Behavior<{
   state: { one: string };
@@ -63,25 +63,19 @@ export class OccupancySensorBehavior extends Behavior<{
     // Get the state characteristic from the dependend upon STATE behavior.
     // This could be locks or switches or whatever conforms to the behavior / protocol.
     const timeoutBehavior = this.getType(BehaviorTypes.TIMEOUT);
-    const setDuration = timeoutBehavior.get(
-      (type) => type.SetDuration as UUIDCharacteristics<'SetDuration'>,
-    );
-    const remainingDuration = timeoutBehavior.get(
-      (type) =>
-        type.RemainingDuration as UUIDCharacteristics<'RemainingDuration'>,
-    );
 
-    const occupancyDetected = this.get(this.type.OccupancyDetected);
-    const motionDetected = this.get(this.type.MotionDetected);
+    const { OccupancyDetected, MotionDetected } = this.getCharacteristicMap(
+      this.type,
+    );
 
     // OCCUPANCY DETECTED
     {
-      const chara = occupancyDetected;
+      const chara = OccupancyDetected;
 
-      chara.onChange((newValue) => {
+      chara.onChange((newValue, { oldValue }) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} | ${chara.name} | ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} | ${chara.name} | ${this.service.params.name} changed | ${oldValue} --> ${newValue}`,
         );
         chara.setValue(newValue);
       });
@@ -89,38 +83,31 @@ export class OccupancySensorBehavior extends Behavior<{
 
     // MOTION DETECTED
     {
-      const chara = motionDetected;
+      const chara = MotionDetected;
 
-      chara.onChange((newValue) => {
+      chara.onChange((newValue, { oldValue }) => {
         this.log(
           LogLevel.INFO,
-          `${this.logName} | ${chara.name} | ${this.service.params.name} changed to ${newValue}`,
+          `${this.logName} | ${chara.name} | ${this.service.params.name} changed | ${oldValue} --> ${newValue}`,
         );
+
         chara.setValue(newValue);
-      });
-    }
 
-    // REMAINING DURATION
-    {
-      const chara = remainingDuration;
-
-      chara.onChange((newValue) => {
-        this.log(
-          LogLevel.INFO,
-          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
-        );
-      });
-    }
-
-    // SET DURATION
-    {
-      const chara = setDuration;
-
-      chara.onChange((newValue) => {
-        this.log(
-          LogLevel.INFO,
-          `${this.logName} ${chara.name} ${this.service.params.name} changed to ${newValue}`,
-        );
+        if (newValue) {
+          timeoutBehavior.cancelTimeout();
+          // If motion is detected, set the occupancy to true.
+          OccupancyDetected.setValue(true);
+        } else {
+          timeoutBehavior.startTimeout({
+            onComplete: () => {
+              this.log(
+                LogLevel.INFO,
+                'Occupancy Timeout Complete, setting to unoccupied',
+              );
+              OccupancyDetected.setValue(false);
+            },
+          });
+        }
       });
     }
   }

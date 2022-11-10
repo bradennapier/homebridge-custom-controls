@@ -9,6 +9,7 @@ import {
   StateTimeoutBehavior,
   StateBehaviorLock,
   StateBehaviorSwitch,
+  TimeoutBehavior,
 } from '../behaviors';
 import { API, Logger } from 'homebridge';
 import { OccupancySensorBehavior } from '../behaviors/OccupancySensorBehavior';
@@ -89,7 +90,7 @@ export class SwitchGroupController {
       'Occupancy Sensor',
       `${SUBTYPE}-${group.uniqueID}-occupancy`,
       {
-        behaviors: [StateTimeoutBehavior, OccupancySensorBehavior],
+        behaviors: [TimeoutBehavior, OccupancySensorBehavior],
       },
     );
 

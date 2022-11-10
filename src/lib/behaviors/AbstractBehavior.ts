@@ -34,18 +34,20 @@ export abstract class Behavior<
 
   readonly UUID: string = getUUID(this.constructor);
 
+  public readonly params: P;
+
   abstract readonly name: string;
 
-  abstract readonly type: {
+  abstract readonly type: Readonly<{
     readonly [key: string]: CharacteristicWithUUID;
-  };
+  }>;
 
   constructor(
     public readonly service: Service,
-    public readonly params: P | void | undefined = {} as P,
+    params: P | void | undefined = {} as P,
   ) {
     this.service = service;
-    this.params = params;
+    this.params = params as P;
     this.checkDependencies();
   }
 
@@ -120,8 +122,10 @@ export abstract class Behavior<
     );
   }
 
-  public get<C extends CharacteristicWithUUID>(
-    $characteristic: C | ((types: this['type']) => C),
+  public get(
+    $characteristic:
+      | CharacteristicWithUUID
+      | ((types: typeof this.type) => CharacteristicWithUUID),
   ) {
     console.log(
       typeof $characteristic,
@@ -130,8 +134,12 @@ export abstract class Behavior<
     );
     const characteristic =
       'UUID' in $characteristic
-        ? ($characteristic as C)
-        : ($characteristic as (types: this['type']) => C)(this.type);
+        ? ($characteristic as CharacteristicWithUUID)
+        : (
+            $characteristic as (
+              types: typeof this.type,
+            ) => CharacteristicWithUUID
+          )(this.type);
 
     const value = this.characteristicMap.get(characteristic);
     if (!value) {
@@ -145,6 +153,32 @@ export abstract class Behavior<
 
   protected getAllCharacteristics() {
     return [...this.characteristicMap.values()];
+  }
+
+  public getCharacteristicMap<T extends typeof this.type>(
+    of: T,
+  ): {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [K in keyof T]: Characteristic<any>;
+  } {
+    const result = Object.entries(of).reduce(
+      (obj, [name, instance]) => {
+        const chara = this.get(instance);
+        if (!chara) {
+          throw new Error(
+            `[${this.logName}] | getCharacteristicMap | Characteristic ${instance} not found, did you forget to call this.registerCharacteristics() in the constructor?`,
+          );
+        }
+        obj[name as keyof T] = chara;
+
+        return obj;
+      },
+      {} as {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [K in keyof T]: Characteristic<any>;
+      },
+    );
+    return result;
   }
 
   /**

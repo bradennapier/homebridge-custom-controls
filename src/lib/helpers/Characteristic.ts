@@ -101,7 +101,7 @@ export class Characteristic<V extends CharacteristicValue> {
   public onChange(
     callback: (
       this: this,
-      value: V | null,
+      value: V,
       state: typeof this.state,
       change: CharacteristicChange,
     ) => unknown | Promise<unknown>,
@@ -182,7 +182,7 @@ export class Characteristic<V extends CharacteristicValue> {
         value: initialValue ?? null,
       });
     } else {
-      this.value = state.value as V | null;
+      this.value = state.value as V;
     }
   }
 
@@ -260,7 +260,7 @@ export class Characteristic<V extends CharacteristicValue> {
             try {
               await callback.call(
                 this,
-                this.state.value as V | null,
+                this.state.value as V,
                 clonedState,
                 change,
               );
@@ -289,13 +289,13 @@ export class Characteristic<V extends CharacteristicValue> {
    * Gets the value of the characteristic.
    */
   public get value() {
-    return this.controller.value as V | null;
+    return this.controller.value as V;
   }
 
   /**
    * Sets the value of the characteristic.
    */
-  public set value(value: V | null) {
+  public set value(value: V) {
     this.setValue(value);
   }
 

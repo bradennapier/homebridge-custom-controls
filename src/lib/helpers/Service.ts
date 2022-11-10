@@ -15,7 +15,7 @@ import { Behavior } from '../behaviors/AbstractBehavior';
 import { Characteristic } from './Characteristic';
 import { BehaviorTypes } from '../behaviors/types';
 import StateBehavior from '../behaviors/state/AbstractStateBehavior';
-import { StateTimeoutBehavior } from '../behaviors';
+import type { TimeoutBehavior } from '../behaviors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ServiceCreationParams<C extends AnyObj | undefined = any> = {
@@ -73,7 +73,7 @@ export class Service<
     types: {} as {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [BehaviorTypes.STATE]?: StateBehavior;
-      [BehaviorTypes.TIMEOUT]?: StateTimeoutBehavior;
+      [BehaviorTypes.TIMEOUT]?: TimeoutBehavior;
     },
   };
 
