@@ -52,7 +52,7 @@ export class SwitchGroupController {
     this.accessory = new Accessory(platform, {
       name: group.name,
       subType: `${SUBTYPE}-${group.uniqueID}`,
-      category: this.api.hap.Categories.SPRINKLER,
+      // category: this.api.hap.Categories.SPRINKLER,
     });
 
     this.accessory.setInformation({
